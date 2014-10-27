@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
+#include <string>
 #include <iostream>
-#include <string>
-#include <string>
 #include <vector>
 
 using namespace std;
@@ -13,7 +13,9 @@ static string pythonPath;
 static bool pythonStarted = false;
 static int stdinPipe[2] = { -1, -1 };
 static int resultPipe[2] = { -1, -1 };
+
 static int pythonPID = -1;
+static bool startTried = false;
 
 static string lastErrorMessage = "No error";
 static vector<uint8_t> variableBuffer;
@@ -36,9 +38,65 @@ void py_close()
 #define ERR_BADRESULTLINE -2
 #define ERR_BADRESULTCODE -3
 
+string readLine(int fileDesc);
+
 bool checkRunning()
 {
-	return false; // TODO
+	if (pythonPID > 0)
+		return true;
+	
+	if (startTried)
+		return false;
+
+	startTried = true;
+
+	pipe(stdinPipe);
+	pipe(resultPipe);
+
+	pythonPID = fork();
+	if (pythonPID < 0)
+	{
+		cerr << "Unable to fork child process";
+		return false;
+	}
+
+	if (pythonPID == 0) // In this case, we're in the child process
+	{
+		// close default stdin and replace with our pipe
+		close(0); 
+		dup(stdinPipe[0]);
+
+		char *pExec = (char *)pythonPath.c_str();
+		char script[] = "pythonwrapperscript.py";
+		char resultDesc[256];
+
+		sprintf(resultDesc, "%d", resultPipe[1]);
+		char * const argv[] = { pExec, script, resultDesc, 0 };
+
+		if (execve(pExec, argv, NULL) < 0) // environ is a global variable
+		{
+			cerr << "Unable to start python process" << endl;
+			exit(-1); // stop child process
+		}
+		exit(0); // shouldn't get here (process was replaced by python), but just in case...
+	}
+
+	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
+	string line = readLine(resultPipe[0]);
+
+	if (line != "RPYTHON2")
+	{
+		close(resultPipe[0]);
+		close(resultPipe[1]);
+		close(stdinPipe[0]);
+		close(stdinPipe[1]);
+		cerr << "Received bad identifier from python process" << endl;
+		return false;
+	}
+
+	// Ok, we're up and running!
+
+	return true;
 }
 
 string readLine(int fileDesc)
@@ -68,7 +126,7 @@ string readLine(int fileDesc)
 	return result;
 }
 
-void writeCommand(int cmd, uint8_t *pData, int dataLen)
+void writeCommand(int cmd, const void *pData, int dataLen)
 {
 	char str[BUFLEN];
 
