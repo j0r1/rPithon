@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <sys/select.h>
+#include <sys/wait.h>
 
 using namespace std;
 
@@ -47,6 +49,19 @@ void py_close()
 #define ERR_BADRESULTCODE -3
 
 string readLine(int fileDesc);
+
+void closePids()
+{
+	close(resultPipe[0]);
+	close(resultPipe[1]);
+	close(stdinPipe[0]);
+	close(stdinPipe[1]);
+
+	resultPipe[0] = -1;
+	resultPipe[1] = -1;
+	stdinPipe[0] = -1;
+	stdinPipe[1] = -1;
+}
 
 bool checkRunning()
 {
@@ -103,10 +118,7 @@ bool checkRunning()
 
 	if (line != "RPYTHON2")
 	{
-		close(resultPipe[0]);
-		close(resultPipe[1]);
-		close(stdinPipe[0]);
-		close(stdinPipe[1]);
+		closePids();
 		cerr << "Received bad identifier from python process" << endl;
 		return false;
 	}
@@ -120,27 +132,70 @@ bool checkRunning()
 
 string readLine(int fileDesc)
 {
+	//cout << "Reading a line" << endl;
+
 	string result = "";
 
 	// This is not efficient, but these lines should be short anyway
 	bool done = false;
 	while (!done)
 	{
-		char c[1];
+		fd_set fdSet, exceptSet;
+		struct timeval tv;
 
-		if (read(fileDesc, c, 1) != 1)
+		FD_ZERO(&fdSet);
+		FD_SET(fileDesc, &fdSet);
+		FD_ZERO(&exceptSet);
+		FD_SET(fileDesc, &exceptSet);
+
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
+
+		//cout << "Starting select" << endl;
+		if (waitpid(pythonPID, 0, WNOHANG) == pythonPID)
 		{
-			done = true;
-			result = "READ ERROR";
+			cout << "Python process finished" << endl;
+			closePids();
+			return "PYTHON FINISHED";
 		}
-		else
+
+		int status = select(FD_SETSIZE, &fdSet, 0, &exceptSet, &tv);
+		if (status < 0)
 		{
-			if (c[0] == '\n')
-				done = true;
+			cout << "Error in select" << endl;
+			closePids();
+			return "ERROR IN SELECT";
+		}
+
+		if (FD_ISSET(fileDesc, &exceptSet))
+		{
+			cout << "Select exception" << endl;
+			closePids();
+			return "SELECT EXCEPTION";
+		}
+
+		if (FD_ISSET(fileDesc, &fdSet)) // Ok, we can read something
+		{
+			char c[2];
+
+			c[1] = 0;
+			//cout << "Reading a character..." << endl;
+			if (read(fileDesc, c, 1) != 1)
+			{
+				cout << "Read error" << endl;
+				closePids();
+				return "READ ERROR";
+			}
 			else
-				result += string(c);
+			{
+				if (c[0] == '\n')
+					done = true;
+				else
+					result += string(c);
+			}
 		}
 	}
+	//cout << "Done." << endl;
 
 	return result;
 }
@@ -150,8 +205,11 @@ void writeCommand(int cmd, const void *pData, int dataLen)
 	char str[BUFLEN];
 
 	snprintf(str, BUFLEN, "%d,%d\n", cmd, dataLen);
+	//cout << "Writing command " << str << endl;
 	write(stdinPipe[1], str, strlen(str));
+	//cout << "Writing data of length " << dataLen << endl;
 	write(stdinPipe[1], pData, dataLen);
+	//cout << "Done" << endl;
 }
 
 void py_exec_code(const char** code, int* exit_status )
@@ -208,12 +266,6 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 	}
 
 	*found = 0;
-
-	if (string(*var_name) == "_r_error") // This was used to get the last error
-	{
-		*resultado = (char *)lastErrorMessage.c_str();
-		return;
-	}
 
 	writeCommand(CMD_GETVAR, *var_name, strlen(*var_name));
 
