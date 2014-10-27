@@ -1,4 +1,4 @@
-Package: rPython2
+Package: rPython
 Version: 0.0-7
 Date: 2014-08-02
 Title: Package allowing R to call Python

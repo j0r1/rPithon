@@ -20,6 +20,14 @@ static bool startTried = false;
 static string lastErrorMessage = "No error";
 static vector<uint8_t> variableBuffer;
 
+extern "C" 
+{
+	void py_init();
+	void py_close();
+	void py_exec_code(const char** code, int* exit_status);
+	void py_get_var(const char** var_name, int* found, char** resultado);
+}
+
 void py_init()
 {
 	pythonPath = "/usr/bin/python";
@@ -60,20 +68,25 @@ bool checkRunning()
 		return false;
 	}
 
+	cerr << "Fork successful" << endl;
+
 	if (pythonPID == 0) // In this case, we're in the child process
 	{
 		// close default stdin and replace with our pipe
 		close(0); 
 		dup(stdinPipe[0]);
 
-		char *pExec = (char *)pythonPath.c_str();
-		char script[] = "pythonwrapperscript.py";
+		//char *pExec = (char *)pythonPath.c_str();
+		char pExec[] = "python";
+//		char script[] = "pythonwrapperscript.py"; // TODO
+		char script[] = "/home/jori/projects/rPython2/inst/pythonwrapperscript.py";
 		char resultDesc[256];
 
 		sprintf(resultDesc, "%d", resultPipe[1]);
 		char * const argv[] = { pExec, script, resultDesc, 0 };
-
-		if (execve(pExec, argv, NULL) < 0) // environ is a global variable
+	
+		cerr << "Starting python process" << endl;
+		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
 			cerr << "Unable to start python process" << endl;
 			exit(-1); // stop child process
@@ -81,8 +94,12 @@ bool checkRunning()
 		exit(0); // shouldn't get here (process was replaced by python), but just in case...
 	}
 
+	cerr << "Child process has PID " << pythonPID << endl;
+
 	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
 	string line = readLine(resultPipe[0]);
+
+	cerr << "Read line: " << line << endl;
 
 	if (line != "RPYTHON2")
 	{
@@ -96,12 +113,14 @@ bool checkRunning()
 
 	// Ok, we're up and running!
 
+	cerr << "Ok, started" << endl;
+
 	return true;
 }
 
 string readLine(int fileDesc)
 {
-	string result = 0;
+	string result = "";
 
 	// This is not efficient, but these lines should be short anyway
 	bool done = false;
@@ -184,7 +203,7 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 	{
 		*found = 1;
 		lastErrorMessage = "Python not running";
-		*resultado = lastErrorMessage.c_str();
+		*resultado = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
@@ -192,7 +211,7 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 
 	if (string(*var_name) == "_r_error") // This was used to get the last error
 	{
-		*resultado = lastErrorMessage.c_str();
+		*resultado = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
@@ -205,7 +224,7 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 	{
 		*found = 1;
 		lastErrorMessage = "Internal error: bad result line";
-		*resultado = lastErrorMessage.c_str();
+		*resultado = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
@@ -214,7 +233,7 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 	{
 		*found = 1;
 		lastErrorMessage = "Internal error: bad result code";
-		*resultado = lastErrorMessage.c_str();
+		*resultado = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
