@@ -8,6 +8,7 @@
 #include <vector>
 #include <sys/select.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -35,9 +36,12 @@ void py_init()
 	pythonPath = "python";
 }
 
+void closePipes();
+
 void py_close()
 {
-	// TODO: close pipes, kill child process
+	closePipes();
+	kill(pythonPID, SIGKILL);
 }
 
 #define BUFLEN 4096
@@ -50,7 +54,7 @@ void py_close()
 
 string readLine(int fileDesc);
 
-void closePids()
+void closePipes()
 {
 	close(resultPipe[0]);
 	close(resultPipe[1]);
@@ -91,6 +95,9 @@ bool checkRunning()
 		close(0); 
 		dup(stdinPipe[0]);
 
+		close(stdinPipe[1]);
+		close(resultPipe[0]);
+
 		char *pExec = (char *)pythonPath.c_str();
 //		char script[] = "pythonwrapperscript.py"; // TODO
 		char script[] = "/home/jori/projects/rPython2/inst/pythonwrapperscript.py";
@@ -108,6 +115,9 @@ bool checkRunning()
 		exit(0); // shouldn't get here (process was replaced by python), but just in case...
 	}
 
+	close(stdinPipe[0]);
+	close(resultPipe[1]);
+
 	//cerr << "Child process has PID " << pythonPID << endl;
 
 	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
@@ -117,7 +127,7 @@ bool checkRunning()
 
 	if (line != "RPYTHON2")
 	{
-		closePids();
+		closePipes();
 		cerr << "Received bad identifier from python process" << endl;
 		return false;
 	}
@@ -154,7 +164,7 @@ string readLine(int fileDesc)
 		if (waitpid(pythonPID, 0, WNOHANG) == pythonPID)
 		{
 			cout << "Python process finished" << endl;
-			closePids();
+			closePipes();
 			return "PYTHON FINISHED";
 		}
 
@@ -162,14 +172,14 @@ string readLine(int fileDesc)
 		if (status < 0)
 		{
 			cout << "Error in select" << endl;
-			closePids();
+			closePipes();
 			return "ERROR IN SELECT";
 		}
 
 		if (FD_ISSET(fileDesc, &exceptSet))
 		{
 			cout << "Select exception" << endl;
-			closePids();
+			closePipes();
 			return "SELECT EXCEPTION";
 		}
 
@@ -182,7 +192,7 @@ string readLine(int fileDesc)
 			if (read(fileDesc, c, 1) != 1)
 			{
 				cout << "Read error" << endl;
-				closePids();
+				closePipes();
 				return "READ ERROR";
 			}
 			else

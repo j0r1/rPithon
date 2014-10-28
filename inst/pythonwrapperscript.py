@@ -1,6 +1,4 @@
-import sys
-import os
-import json
+import sys, select, os, json
 
 #print "Python process:", sys.argv
 resultDesc = int(sys.argv[1])
@@ -11,9 +9,16 @@ resultChannel = os.fdopen(resultDesc, "w")
 resultChannel.write("RPYTHON2\n")
 resultChannel.flush()
 
+count = 0
+
 while True:
+
+    count += 1
+    print "Reading line", count
+
     l = sys.stdin.readline()
     if len(l) == 0:
+        print "No more data, exiting"
         break
 
     parts = l.strip().split(",")
@@ -22,7 +27,12 @@ while True:
     command = int(parts[0])
     argLength = int(parts[1])
 
+    print "Reading %d bytes" % argLength
     argData = sys.stdin.read(argLength)
+    if len(argData) != argLength:
+        print "Read insufficient data"
+        break
+
     #print argData
 
     if command == 1: # CMD_EXEC
