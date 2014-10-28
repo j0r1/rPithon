@@ -22,8 +22,10 @@ python.exec <- function( python.code, get.exception = TRUE ){
     exit.status <- .C( "py_exec_code", python.code, exit.status = integer(1), PACKAGE = "rPython" )$exit.status          # Exit status always good as any exception is captured
 
     ret <- .C( "py_get_var", "_r_error", no.error = integer(1), error.desc = character(1), PACKAGE = "rPython" )
-    if( ! ret$no.error )
-        stop( ret$error.desc )
+    print("NO.ERROR=")
+    print(ret$no.error)
+    if(ret$no.error)
+	stop( ret$error.desc )
 
     invisible( NULL )
 }

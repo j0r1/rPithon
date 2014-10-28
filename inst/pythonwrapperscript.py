@@ -16,7 +16,7 @@ while True:
     if len(l) == 0:
         break
 
-    parts = l.split(",")
+    parts = l.strip().split(",")
     print parts
 
     command = int(parts[0])
@@ -26,23 +26,31 @@ while True:
     print argData
 
     if command == 1: # CMD_EXEC
+        print "CMD_EXEC"
         try:
-            exec(l)
+            print "Trying exec(%s)" % argData
+            exec(argData)
+            print "Writing result"
             resultChannel.write("0,0\n")
             resultChannel.flush()
         except Exception as e:
+            print "Exception", e
             errStr = str(e)
             resultChannel.write("1,%d\n" % len(errStr))
             resultChannel.write(errStr)
             resultChannel.flush()
 
     elif command == 2: # CMD_GETVAR
+        print "CMD_GETVAR"
         try:
+            print "Getting variable"
             v = eval(argData)
+            print "Writing result:", v
             resultChannel.write("0,%d\n" % len(v))
             resultChannel.write(v)
             resultChannel.flush()
         except Exception as e:
+            print "Exception", e
             errStr = str(e)
             resultChannel.write("1,%d\n" % len(errStr))
             resultChannel.write(errStr)

@@ -257,15 +257,14 @@ void py_exec_code(const char** code, int* exit_status )
 
 void py_get_var( const char** var_name, int* found, char** resultado )
 {
+	*found = 0;
+
 	if (!checkRunning())
 	{
-		*found = 1;
 		lastErrorMessage = "Python not running";
 		*resultado = (char *)lastErrorMessage.c_str();
 		return;
 	}
-
-	*found = 0;
 
 	writeCommand(CMD_GETVAR, *var_name, strlen(*var_name));
 
@@ -274,7 +273,6 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 
 	if (sscanf(line.c_str(), "%d,%d", &resultCode, &resultLength) != 2)
 	{
-		*found = 1;
 		lastErrorMessage = "Internal error: bad result line";
 		*resultado = (char *)lastErrorMessage.c_str();
 		return;
@@ -283,7 +281,6 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 	// Here, a correct response is a result code of 0, with the variable contents that follows
 	if (resultCode < 0)
 	{
-		*found = 1;
 		lastErrorMessage = "Internal error: bad result code";
 		*resultado = (char *)lastErrorMessage.c_str();
 		return;
@@ -296,4 +293,7 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 		read(resultPipe[0], &(variableBuffer[0]), resultLength);
 
 	*resultado = (char *)&(variableBuffer[0]); // Is it ok to keep reusing this?
+	if (resultCode == 0)
+		*found = 1;
 }
+
