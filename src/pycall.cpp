@@ -159,59 +159,22 @@ string readLine(int fileDesc)
 	bool done = false;
 	while (!done)
 	{
-		fd_set fdSet, exceptSet;
-		struct timeval tv;
+		char c[2];
 
-		FD_ZERO(&fdSet);
-		FD_SET(fileDesc, &fdSet);
-		FD_ZERO(&exceptSet);
-		FD_SET(fileDesc, &exceptSet);
-
-		tv.tv_sec = 1;
-		tv.tv_usec = 0;
-
-		//cout << "Starting select" << endl;
-		if (waitpid(pythonPID, 0, WNOHANG) == pythonPID)
+		c[1] = 0;
+		//cout << "Reading a character..." << endl;
+		if (read(fileDesc, c, 1) != 1)
 		{
-			cout << "Python process finished" << endl;
+			cout << "Read error" << endl;
 			closePipes();
-			return "PYTHON FINISHED";
+			return "READ ERROR";
 		}
-
-		int status = select(FD_SETSIZE, &fdSet, 0, &exceptSet, &tv);
-		if (status < 0)
+		else
 		{
-			cout << "Error in select" << endl;
-			closePipes();
-			return "ERROR IN SELECT";
-		}
-
-		if (FD_ISSET(fileDesc, &exceptSet))
-		{
-			cout << "Select exception" << endl;
-			closePipes();
-			return "SELECT EXCEPTION";
-		}
-
-		if (FD_ISSET(fileDesc, &fdSet)) // Ok, we can read something
-		{
-			char c[2];
-
-			c[1] = 0;
-			//cout << "Reading a character..." << endl;
-			if (read(fileDesc, c, 1) != 1)
-			{
-				cout << "Read error" << endl;
-				closePipes();
-				return "READ ERROR";
-			}
+			if (c[0] == '\n')
+				done = true;
 			else
-			{
-				if (c[0] == '\n')
-					done = true;
-				else
-					result += string(c);
-			}
+				result += string(c);
 		}
 	}
 	//cout << "Done." << endl;
