@@ -29,11 +29,18 @@ extern "C"
 	void py_close();
 	void py_exec_code(const char** code, int* exit_status, char **message);
 	void py_get_var(const char** var_name, int* found, char** resultado);
+	void py_set_exec(const char** executable);
 }
 
 void py_init()
 {
 	pythonPath = "python";
+}
+
+void py_set_exec(const char** executable)
+{
+	if (*executable)
+		pythonPath = string(*executable);
 }
 
 void closePipes();
@@ -73,7 +80,10 @@ bool checkRunning()
 		return true;
 	
 	if (startTried)
+	{
+		cerr << "Already tried to start the python process" << endl;
 		return false;
+	}
 
 	startTried = true;
 
@@ -106,7 +116,7 @@ bool checkRunning()
 		sprintf(resultDesc, "%d", resultPipe[1]);
 		char * const argv[] = { pExec, script, resultDesc, 0 };
 	
-		cerr << "Starting python process" << endl;
+		cerr << "Starting python process " << pExec << endl;
 		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
 			cerr << "Unable to start python process" << endl;

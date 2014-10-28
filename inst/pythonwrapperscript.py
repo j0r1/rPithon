@@ -20,6 +20,7 @@ while True:
         #print "Read insufficient data"
         break
 
+    print reallyReallyLongAndUnnecessaryPrefix_argData
     if reallyReallyLongAndUnnecessaryPrefix_command == 1: # CMD_EXEC
         try:
             exec(reallyReallyLongAndUnnecessaryPrefix_argData)

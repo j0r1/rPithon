@@ -2,9 +2,9 @@
 # CGB, 20120801
 #########################################################
 
-python.load <- function( file, get.exception = TRUE ){
+python.load <- function( file ){
     code <- readLines( file )
-    python.exec( code, get.exception )
+    python.exec( code )
 }
 
 
