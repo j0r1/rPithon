@@ -1,72 +1,48 @@
-import sys, select, os, json
+import sys, os, json
 
-#print "Python process:", sys.argv
-resultDesc = int(sys.argv[1])
-#print "Result descriptor:", resultDesc
-
-resultChannel = os.fdopen(resultDesc, "w")
-
-resultChannel.write("RPYTHON2\n")
-resultChannel.flush()
-
-count = 0
+reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(int(sys.argv[1]), "w")
+reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("RPYTHON2\n")
+reallyReallyLongAndUnnecessaryPrefix_resultChannel.flush()
 
 while True:
 
-    count += 1
-    print "Reading line", count
-
-    l = sys.stdin.readline()
-    if len(l) == 0:
-        print "No more data, exiting"
+    reallyReallyLongAndUnnecessaryPrefix_l = sys.stdin.readline()
+    if len(reallyReallyLongAndUnnecessaryPrefix_l) == 0:
+        #print "No more data, exiting"
         break
 
-    parts = l.strip().split(",")
-    #print parts
+    reallyReallyLongAndUnnecessaryPrefix_parts = reallyReallyLongAndUnnecessaryPrefix_l.strip().split(",")
+    reallyReallyLongAndUnnecessaryPrefix_command = int(reallyReallyLongAndUnnecessaryPrefix_parts[0])
+    reallyReallyLongAndUnnecessaryPrefix_argLength = int(reallyReallyLongAndUnnecessaryPrefix_parts[1])
 
-    command = int(parts[0])
-    argLength = int(parts[1])
-
-    print "Reading %d bytes" % argLength
-    argData = sys.stdin.read(argLength)
-    if len(argData) != argLength:
-        print "Read insufficient data"
+    reallyReallyLongAndUnnecessaryPrefix_argData = sys.stdin.read(reallyReallyLongAndUnnecessaryPrefix_argLength)
+    if len(reallyReallyLongAndUnnecessaryPrefix_argData) != reallyReallyLongAndUnnecessaryPrefix_argLength:
+        #print "Read insufficient data"
         break
 
-    #print argData
-
-    if command == 1: # CMD_EXEC
-        #print "CMD_EXEC"
+    if reallyReallyLongAndUnnecessaryPrefix_command == 1: # CMD_EXEC
         try:
-            #print "Trying exec(%s)" % argData
-            exec(argData)
-            #print "Writing result"
-            resultChannel.write("0,0\n")
-            resultChannel.flush()
-        except Exception as e:
-            #print "Exception", e
-            errStr = str(e)
-            resultChannel.write("1,%d\n" % len(errStr))
-            resultChannel.write(errStr)
-            resultChannel.flush()
+            exec(reallyReallyLongAndUnnecessaryPrefix_argData)
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("0,0\n")
+        except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
+            reallyReallyLongAndUnnecessaryPrefix_errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix_errStr))
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write(reallyReallyLongAndUnnecessaryPrefix_errStr)
+        
+        reallyReallyLongAndUnnecessaryPrefix_resultChannel.flush()
 
-    elif command == 2: # CMD_GETVAR
-        #print "CMD_GETVAR"
+    elif reallyReallyLongAndUnnecessaryPrefix_command == 2: # CMD_GETVAR
         try:
-            #print "Getting variable"
-            v = eval(argData)
-            #print "Writing result:", v
+            data = json.dumps([eval(reallyReallyLongAndUnnecessaryPrefix_argData)])
 
-            data = json.dumps([v])
-
-            resultChannel.write("0,%d\n" % len(data))
-            resultChannel.write(data)
-            resultChannel.flush()
-        except Exception as e:
-            #print "Exception", e
-            errStr = str(e)
-            resultChannel.write("1,%d\n" % len(errStr))
-            resultChannel.write(errStr)
-            resultChannel.flush()
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("0,%d\n" % len(data))
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write(data)
+        except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
+            reallyReallyLongAndUnnecessaryPrefix_errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix_errStr))
+            reallyReallyLongAndUnnecessaryPrefix_resultChannel.write(reallyReallyLongAndUnnecessaryPrefix_errStr)
+        
+        reallyReallyLongAndUnnecessaryPrefix_resultChannel.flush()
 
 sys.exit(0)
+
