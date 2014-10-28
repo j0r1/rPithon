@@ -4,15 +4,13 @@
 
 python.get <- function( var.name ){
 
-    python.command <- paste( "_r_return = json.dumps( [", var.name, "] )", sep = "" )
-    python.exec( python.command, get.exception = FALSE )
+    ret <- .C( "py_get_var", var.name, found = integer(1), result = character(1), PACKAGE = "rPython" )
 
-    ret <- .C( "py_get_var", "_r_return", not.found.var = integer(1), resultado = character(1), PACKAGE = "rPython" )
-
-    if( ret$not.found.var )
-        stop( "Variable not found" )
+    if(!ret$found)
+        stop(paste("Couldn't retrieve variable: ", ret$result, sep=""))
         
-    ret <- fromJSON( ret$resultado )
+    ret <- fromJSON(ret$result)
+
     if( length( ret ) == 1 ) ret <- ret[[1]]
     ret
 }

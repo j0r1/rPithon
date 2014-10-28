@@ -26,13 +26,13 @@ extern "C"
 {
 	void py_init();
 	void py_close();
-	void py_exec_code(const char** code, int* exit_status);
+	void py_exec_code(const char** code, int* exit_status, char **message);
 	void py_get_var(const char** var_name, int* found, char** resultado);
 }
 
 void py_init()
 {
-	pythonPath = "/usr/bin/python";
+	pythonPath = "python";
 }
 
 void py_close()
@@ -83,7 +83,7 @@ bool checkRunning()
 		return false;
 	}
 
-	cerr << "Fork successful" << endl;
+	//cerr << "Fork successful" << endl;
 
 	if (pythonPID == 0) // In this case, we're in the child process
 	{
@@ -91,8 +91,7 @@ bool checkRunning()
 		close(0); 
 		dup(stdinPipe[0]);
 
-		//char *pExec = (char *)pythonPath.c_str();
-		char pExec[] = "python";
+		char *pExec = (char *)pythonPath.c_str();
 //		char script[] = "pythonwrapperscript.py"; // TODO
 		char script[] = "/home/jori/projects/rPython2/inst/pythonwrapperscript.py";
 		char resultDesc[256];
@@ -109,12 +108,12 @@ bool checkRunning()
 		exit(0); // shouldn't get here (process was replaced by python), but just in case...
 	}
 
-	cerr << "Child process has PID " << pythonPID << endl;
+	//cerr << "Child process has PID " << pythonPID << endl;
 
 	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
 	string line = readLine(resultPipe[0]);
 
-	cerr << "Read line: " << line << endl;
+	//cerr << "Read line: " << line << endl;
 
 	if (line != "RPYTHON2")
 	{
@@ -125,7 +124,7 @@ bool checkRunning()
 
 	// Ok, we're up and running!
 
-	cerr << "Ok, started" << endl;
+	//cerr << "Ok, started" << endl;
 
 	return true;
 }
@@ -212,12 +211,13 @@ void writeCommand(int cmd, const void *pData, int dataLen)
 	//cout << "Done" << endl;
 }
 
-void py_exec_code(const char** code, int* exit_status )
+void py_exec_code(const char** code, int* exit_status, char **message )
 {
 	if (!checkRunning())
 	{
 		*exit_status = ERR_NOTRUNNING;
 		lastErrorMessage = "Python not running";
+		*message = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
@@ -230,6 +230,7 @@ void py_exec_code(const char** code, int* exit_status )
 	{
 		*exit_status = ERR_BADRESULTLINE;
 		lastErrorMessage = "Internal error: bad result line";
+		*message = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
@@ -238,6 +239,7 @@ void py_exec_code(const char** code, int* exit_status )
 	{
 		*exit_status = ERR_BADRESULTCODE;
 		lastErrorMessage = "Internal error: bad result code";
+		*message = (char *)lastErrorMessage.c_str();
 		return;
 	}
 
@@ -250,6 +252,7 @@ void py_exec_code(const char** code, int* exit_status )
 		buffer[resultLength] = 0;
 
 		lastErrorMessage = string((char *)&(buffer[0]));
+		*message = (char *)lastErrorMessage.c_str();
 	}
 
 	*exit_status = resultCode;
