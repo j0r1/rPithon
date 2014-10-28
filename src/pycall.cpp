@@ -233,6 +233,8 @@ void writeCommand(int cmd, const void *pData, int dataLen)
 
 void py_exec_code(const char** code, int* exit_status, char **message )
 {
+	cout << "code: " << *code << endl;
+
 	if (!checkRunning())
 	{
 		*exit_status = ERR_NOTRUNNING;
