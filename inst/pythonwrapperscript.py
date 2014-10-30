@@ -2,7 +2,7 @@ import sys, os, json, platform
 
 if platform.system() == "Windows":
     import msvcrt
-    reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(msvcrt.open_osfhandle(int(sys.argv[1],16),os.O_APPEND, "w")
+    reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(msvcrt.open_osfhandle(int(sys.argv[1],16),os.O_APPEND), "w")
 else:
     reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(int(sys.argv[1]), "w")
 

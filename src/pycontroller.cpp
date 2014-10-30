@@ -126,7 +126,7 @@ bool PyController::checkRunning()
 
 	if (!CreateProcess(0,
 			   execStr,
-		   	   0,0,TRUE, 0, 0, 0, &startInfo, &procInf))
+		   	   0,0,TRUE, CREATE_NO_WINDOW, 0, 0, &startInfo, &procInf))
 	{
 		setErrorString("Couldn't start process");
      		return false;		
