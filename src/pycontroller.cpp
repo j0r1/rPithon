@@ -1,3 +1,4 @@
+
 #include "pycontroller.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,23 +8,170 @@
 #include <iostream>
 #include <vector>
 
+#ifndef WIN32
+#include <unistd.h>
+#include <sys/wait.h>
+#include <signal.h>
+#endif // !WIN32
+
 using namespace std;
 
 #define BUFLEN 4096
 #define CMD_EXEC 1
 #define CMD_GETVAR 2
 
-#define ERR_NOTRUNNING -1
-#define ERR_BADRESULTLINE -2
-#define ERR_BADRESULTCODE -3
-
 #ifdef WIN32
-// TODO
-#else
+PyController::PyController()
+{
+	m_pythonExecutable = "python";
+	m_scriptPath = "c:\\projects\\rPython2-hg\\inst\\pythonwrapperscript.py"; // TODO: what's a reasonable default
+	m_hStdinPipe[0] = 0;
+	m_hStdinPipe[1] = 0;
+	m_hResultPipe[0] = 0;
+	m_hResultPipe[1] = 0;
+	m_hPyProcess= 0;
+	m_hPyThread = 0;
+	m_startTried = false;
+}
 
-#include <unistd.h>
-#include <sys/wait.h>
-#include <signal.h>
+PyController::~PyController()
+{
+	cleanup();
+}
+
+void PyController::cleanup()
+{
+	if (m_hStdinPipe[0])
+		CloseHandle(m_hStdinPipe[0]);
+	if (m_hStdinPipe[1])
+		CloseHandle(m_hStdinPipe[1]);
+	if (m_hResultPipe[0])
+		CloseHandle(m_hResultPipe[0]);
+	if (m_hResultPipe[1])
+		CloseHandle(m_hResultPipe[1]);
+	if (m_hPyProcess)
+	{
+		TerminateProcess(m_hPyProcess, -1);
+		CloseHandle(m_hPyProcess);
+	}
+	if (m_hPyThread)
+		CloseHandle(m_hPyThread);
+
+	m_hStdinPipe[0] = 0;
+	m_hStdinPipe[1] = 0;
+	m_hResultPipe[0] = 0;
+	m_hResultPipe[1] = 0;
+	m_hPyProcess= 0;
+	m_hPyThread = 0;
+}
+
+bool PyController::checkRunning()
+{
+	if (m_hPyProcess)
+		return true;
+	
+	if (m_startTried)
+	{
+		setErrorString("Already tried to start the python process and failed");
+		return false;
+	}
+
+	m_startTried = true;
+
+	SECURITY_ATTRIBUTES secAtt;
+
+	memset(&secAtt, 0, sizeof(SECURITY_ATTRIBUTES));
+	secAtt.nLength = sizeof(SECURITY_ATTRIBUTES);
+	secAtt.bInheritHandle = TRUE;
+
+	if (!CreatePipe(&(m_hStdinPipe[0]), &(m_hStdinPipe[1]), &secAtt, 0))
+	{
+		setErrorString("Couldn't create input channel");
+		return false;
+	}
+	if (!CreatePipe(&(m_hResultPipe[0]), &(m_hResultPipe[1]), &secAtt, 0))
+	{
+		setErrorString("Couldn't create result channel");
+		return false;
+	}
+	if (!SetHandleInformation(m_hStdinPipe[1], HANDLE_FLAG_INHERIT, 0))
+	{
+		setErrorString("Couldn't set input channel inheritance flag");
+		return false;
+	}
+
+	if (!SetHandleInformation(m_hResultPipe[0], HANDLE_FLAG_INHERIT, 0))
+	{
+		setErrorString("Couldn't set result channel inheritance flag");
+		return false;
+	}
+
+	PROCESS_INFORMATION procInf;
+	STARTUPINFO startInfo;
+
+	memset(&procInf, 0, sizeof(PROCESS_INFORMATION));
+	memset(&startInfo, 0, sizeof(STARTUPINFO));
+
+	startInfo.cb = sizeof(STARTUPINFO);
+	startInfo.dwFlags |= STARTF_USESTDHANDLES;
+	startInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	startInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	startInfo.hStdInput = m_hStdinPipe[0];
+	
+	char execStr[BUFLEN];
+	StringCbPrintf(execStr, BUFLEN, "\"%s\" \"%s\" 0x%p", m_pythonExecutable.c_str(), m_scriptPath.c_str(),
+			                                      m_hResultPipe[1]);
+	execStr[BUFLEN-1] = 0;
+
+	if (!CreateProcess(0,
+			   execStr,
+		   	   0,0,TRUE, 0, 0, 0, &startInfo, &procInf))
+	{
+		setErrorString("Couldn't start process");
+     		return false;		
+	}
+
+	CloseHandle(m_hStdinPipe[0]);
+	m_hStdinPipe[0] = 0;
+
+	CloseHandle(m_hResultPipe[1]);
+	m_hResultPipe[1] = 0;
+
+	string line;
+	readLine(line);
+
+	//cerr << "Read line: " << line << endl;
+	if (line != "RPYTHON2")
+	{
+		cleanup();
+		setErrorString("Received bad identifier from python process");
+		return false;
+	}
+
+	// Ok, we're up and running!
+
+	//cerr << "Ok, started" << endl;
+
+	return true;
+}
+
+void PyController::writeCommand(int cmd, const void *pData, int dataLen)
+{
+	char str[BUFLEN];
+
+	StringCbPrintf(str, BUFLEN, "%d,%d\n", cmd, dataLen);
+	str[BUFLEN-1] = 0;
+
+	//cout << "Writing command " << str << endl;
+	
+	DWORD num;
+	WriteFile(m_hStdinPipe[1], str, strlen(str), &num, 0);
+	//cout << "Writing data of length " << dataLen << endl;
+	WriteFile(m_hStdinPipe[1], pData, dataLen, &num, 0);
+	//cout << "Done" << endl;
+}
+
+#else
 
 PyController::PyController()
 {
@@ -61,6 +209,102 @@ void PyController::cleanup()
 	m_resultPipe[1] = -1;
 	m_pythonPID = -1;
 }
+
+bool PyController::checkRunning()
+{
+	if (m_pythonPID > 0)
+		return true;
+	
+	if (m_startTried)
+	{
+		setErrorString("Already tried to start the python process and failed");
+		return false;
+	}
+
+	m_startTried = true;
+
+	pipe(m_stdinPipe);
+	pipe(m_resultPipe);
+
+	m_pythonPID = fork();
+	if (m_pythonPID < 0)
+	{
+		cleanup();
+		setErrorString("Unable to fork child process");
+		return false;
+	}
+
+	//cerr << "Fork successful" << endl;
+
+	if (m_pythonPID == 0) // In this case, we're in the child process
+	{
+		// close default stdin and replace with our pipe
+		close(0); 
+		dup(m_stdinPipe[0]);
+
+		close(m_stdinPipe[1]);
+		close(m_resultPipe[0]);
+
+		char *pExec = (char *)m_pythonExecutable.c_str();
+		char *pScript = (char *)m_scriptPath.c_str();
+		char resultDesc[256];
+
+		snprintf(resultDesc, 256, "%d", m_resultPipe[1]);
+		resultDesc[255] = 0;
+
+		char *argv[] = { pExec, pScript, resultDesc, 0 };
+	
+		cerr << "Starting python process: " << pExec << endl;
+		if (execvp(pExec, argv) < 0) // environ is a global variable
+		{
+			cerr << "Unable to start python process" << endl;
+			exit(-1); // stop child process
+		}
+		exit(0); // shouldn't get here (process was replaced by python), but just in case...
+	}
+
+	close(m_stdinPipe[0]);
+	m_stdinPipe[0] = -1;
+
+	close(m_resultPipe[1]);
+	m_resultPipe[1] = -1;
+
+	//cerr << "Child process has PID " << pythonPID << endl;
+
+	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
+	string line;
+
+	readLine(line);
+
+	//cerr << "Read line: " << line << endl;
+
+	if (line != "RPYTHON2")
+	{
+		cleanup();
+		setErrorString("Received bad identifier from python process");
+		return false;
+	}
+
+	// Ok, we're up and running!
+
+	//cerr << "Ok, started" << endl;
+
+	return true;
+}
+
+void PyController::writeCommand(int cmd, const void *pData, int dataLen)
+{
+	char str[BUFLEN];
+
+	snprintf(str, BUFLEN, "%d,%d\n", cmd, dataLen);
+	//cout << "Writing command " << str << endl;
+	write(m_stdinPipe[1], str, strlen(str));
+	//cout << "Writing data of length " << dataLen << endl;
+	write(m_stdinPipe[1], pData, dataLen);
+	//cout << "Done" << endl;
+}
+
+#endif // WIN32
 
 bool PyController::exec(const std::string &code)
 {
@@ -167,88 +411,6 @@ bool PyController::getVariable(const std::string &name, std::vector<uint8_t> &va
 	return true;
 }
 
-bool PyController::checkRunning()
-{
-	if (m_pythonPID > 0)
-		return true;
-	
-	if (m_startTried)
-	{
-		setErrorString("Already tried to start the python process and failed");
-		return false;
-	}
-
-	m_startTried = true;
-
-	pipe(m_stdinPipe);
-	pipe(m_resultPipe);
-
-	m_pythonPID = fork();
-	if (m_pythonPID < 0)
-	{
-		cleanup();
-		setErrorString("Unable to fork child process");
-		return false;
-	}
-
-	//cerr << "Fork successful" << endl;
-
-	if (m_pythonPID == 0) // In this case, we're in the child process
-	{
-		// close default stdin and replace with our pipe
-		close(0); 
-		dup(m_stdinPipe[0]);
-
-		close(m_stdinPipe[1]);
-		close(m_resultPipe[0]);
-
-		char *pExec = (char *)m_pythonExecutable.c_str();
-		char *pScript = (char *)m_scriptPath.c_str();
-		char resultDesc[256];
-
-		snprintf(resultDesc, 256, "%d", m_resultPipe[1]);
-		resultDesc[255] = 0;
-
-		char *argv[] = { pExec, pScript, resultDesc, 0 };
-	
-		cerr << "Starting python process: " << pExec << endl;
-		if (execvp(pExec, argv) < 0) // environ is a global variable
-		{
-			cerr << "Unable to start python process" << endl;
-			exit(-1); // stop child process
-		}
-		exit(0); // shouldn't get here (process was replaced by python), but just in case...
-	}
-
-	close(m_stdinPipe[0]);
-	m_stdinPipe[0] = -1;
-
-	close(m_resultPipe[1]);
-	m_resultPipe[1] = -1;
-
-	//cerr << "Child process has PID " << pythonPID << endl;
-
-	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
-	string line;
-
-	readLine(line);
-
-	//cerr << "Read line: " << line << endl;
-
-	if (line != "RPYTHON2")
-	{
-		cleanup();
-		cerr << "Received bad identifier from python process" << endl;
-		return false;
-	}
-
-	// Ok, we're up and running!
-
-	//cerr << "Ok, started" << endl;
-
-	return true;
-}
-
 bool PyController::readLine(string &line)
 {
 	//cout << "Reading a line" << endl;
@@ -263,7 +425,14 @@ bool PyController::readLine(string &line)
 
 		c[1] = 0;
 		//cout << "Reading a character..." << endl;
+#ifdef WIN32
+		DWORD numRead = 0;
+		BOOL success = ReadFile(m_hResultPipe[1], c, 1, &numRead, 0);
+		if (!success || numRead != 1)
+#else
+
 		if (read(m_resultPipe[0], c, 1) != 1)
+#endif // WIN32
 		{
 			setErrorString("Read error");
 			cleanup();
@@ -283,17 +452,4 @@ bool PyController::readLine(string &line)
 	return true;
 }
 
-void PyController::writeCommand(int cmd, const void *pData, int dataLen)
-{
-	char str[BUFLEN];
-
-	snprintf(str, BUFLEN, "%d,%d\n", cmd, dataLen);
-	//cout << "Writing command " << str << endl;
-	write(m_stdinPipe[1], str, strlen(str));
-	//cout << "Writing data of length " << dataLen << endl;
-	write(m_stdinPipe[1], pData, dataLen);
-	//cout << "Done" << endl;
-}
-
-#endif // WIN32
 

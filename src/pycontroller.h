@@ -2,6 +2,10 @@
 
 #define PYCONTROLLER_H
 
+#ifdef WIN32
+#include <windows.h>
+#endif // WIN32
+
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -22,6 +26,9 @@ public:
 private:
 	void setErrorString(const std::string &s) const							{ m_lastError = s; }
 	void cleanup();
+	bool checkRunning();
+	bool readLine(std::string &line);
+	void writeCommand(int cmd, const void *pData, int dataLen);
 
 	mutable std::string m_lastError;
 
@@ -29,15 +36,14 @@ private:
 	std::string m_scriptPath;
 	bool m_startTried;
 #ifdef WIN32
+	HANDLE m_hStdinPipe[2];
+	HANDLE m_hResultPipe[2];
+	HANDLE m_hPyProcess;
+	HANDLE m_hPyThread;
 #else
-	bool checkRunning();
-	bool readLine(std::string &line);
-	void writeCommand(int cmd, const void *pData, int dataLen);
-
 	int m_stdinPipe[2];
 	int m_resultPipe[2];
 	int m_pythonPID;
-
 #endif // WIN32
 };
 
