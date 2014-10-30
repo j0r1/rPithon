@@ -1,6 +1,11 @@
-import sys, os, json
+import sys, os, json, platform
 
-reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(int(sys.argv[1]), "w")
+if platform.system() == "Windows":
+    import msvcrt
+    reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(msvcrt.open_osfhandle(int(sys.argv[1],16),os.O_APPEND, "w")
+else:
+    reallyReallyLongAndUnnecessaryPrefix_resultChannel = os.fdopen(int(sys.argv[1]), "w")
+
 reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("RPYTHON2\n")
 reallyReallyLongAndUnnecessaryPrefix_resultChannel.flush()
 
@@ -8,7 +13,7 @@ while True:
 
     reallyReallyLongAndUnnecessaryPrefix_l = sys.stdin.readline()
     if len(reallyReallyLongAndUnnecessaryPrefix_l) == 0:
-        #print "No more data, exiting"
+    #print "No more data, exiting"
         break
 
     reallyReallyLongAndUnnecessaryPrefix_parts = reallyReallyLongAndUnnecessaryPrefix_l.strip().split(",")
@@ -17,8 +22,8 @@ while True:
 
     reallyReallyLongAndUnnecessaryPrefix_argData = sys.stdin.read(reallyReallyLongAndUnnecessaryPrefix_argLength)
     if len(reallyReallyLongAndUnnecessaryPrefix_argData) != reallyReallyLongAndUnnecessaryPrefix_argLength:
-        #print "Read insufficient data"
-        break
+    #print "Read insufficient data"
+       break
 
     #print reallyReallyLongAndUnnecessaryPrefix_argData
     if reallyReallyLongAndUnnecessaryPrefix_command == 1: # CMD_EXEC
@@ -29,7 +34,7 @@ while True:
             reallyReallyLongAndUnnecessaryPrefix_errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
             reallyReallyLongAndUnnecessaryPrefix_resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix_errStr))
             reallyReallyLongAndUnnecessaryPrefix_resultChannel.write(reallyReallyLongAndUnnecessaryPrefix_errStr)
-        
+    
         reallyReallyLongAndUnnecessaryPrefix_resultChannel.flush()
 
     elif reallyReallyLongAndUnnecessaryPrefix_command == 2: # CMD_GETVAR
@@ -46,4 +51,6 @@ while True:
         reallyReallyLongAndUnnecessaryPrefix_resultChannel.flush()
 
 sys.exit(0)
+
+
 

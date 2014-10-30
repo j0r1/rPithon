@@ -1,3 +1,0 @@
-#!/bin/bash
-
-clang++ -fPIC -c -o src/pycall.o src/pycall.cpp -fpermissive

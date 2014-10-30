@@ -132,6 +132,12 @@ bool PyController::checkRunning()
      		return false;		
 	}
 
+	m_hPyProcess = procInf.hProcess;
+	m_hPyThread = procInf.hThread;
+
+	//cout << "Process handle is " << m_hPyProcess << endl; 
+	//cout << "Thread handle is " << m_hPyThread << endl;
+
 	CloseHandle(m_hStdinPipe[0]);
 	m_hStdinPipe[0] = 0;
 
@@ -142,9 +148,9 @@ bool PyController::checkRunning()
 	readLine(line);
 
 	//cerr << "Read line: " << line << endl;
+
 	if (line != "RPYTHON2")
 	{
-		cleanup();
 		setErrorString("Received bad identifier from python process");
 		return false;
 	}
@@ -439,7 +445,7 @@ bool PyController::readLine(string &line)
 		//cout << "Reading a character..." << endl;
 #ifdef WIN32
 		DWORD numRead = 0;
-		BOOL success = ReadFile(m_hResultPipe[1], c, 1, &numRead, 0);
+		BOOL success = ReadFile(m_hResultPipe[0], c, 1, &numRead, 0);
 		if (!success || numRead != 1)
 #else
 
@@ -447,7 +453,6 @@ bool PyController::readLine(string &line)
 #endif // WIN32
 		{
 			setErrorString("Read error");
-			cleanup();
 			return false;
 		}
 		else
