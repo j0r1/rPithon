@@ -27,7 +27,7 @@ extern "C"
 
 void py_init()
 {
-	pPyController = new pPyController();
+	pPyController = new PyController();
 }
 
 void py_set_exec(const char** executable)
@@ -66,11 +66,13 @@ void py_exec_code(const char** code, int* exit_status, char **message )
 
 void py_get_var( const char** var_name, int* found, char** resultado )
 {
-	*found = 0;
+	if (!*var_name)
+		return;
 
-	if (!pPyController->getVariable(variableBuffer))
+	if (!pPyController->getVariable(*var_name, variableBuffer))
 	{
 		messageBuffer = pPyController->getErrorString();
+		*found = 0;
 		return;
 	}
 

@@ -32,7 +32,7 @@ private:
 #else
 	bool checkRunning();
 	bool readLine(std::string &line);
-	void PyController::writeCommand(int cmd, const void *pData, int dataLen)
+	void writeCommand(int cmd, const void *pData, int dataLen);
 
 	int m_stdinPipe[2];
 	int m_resultPipe[2];

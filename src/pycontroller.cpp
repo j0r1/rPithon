@@ -1,3 +1,4 @@
+#include "pycontroller.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -68,7 +69,7 @@ bool PyController::exec(const std::string &code)
 	if (!checkRunning())
 		return false;
 
-	writeCommand(CMD_EXEC, code, code.length());
+	writeCommand(CMD_EXEC, code.c_str(), code.length());
 
 	string line;
 
@@ -97,7 +98,7 @@ bool PyController::exec(const std::string &code)
 			// Result should be an error description from the python process
 			vector<uint8_t> buffer(resultLength+1);
 
-			read(resultPipe[0], &(buffer[0]), resultLength);
+			read(m_resultPipe[0], &(buffer[0]), resultLength);
 			buffer[resultLength] = 0;
 
 			setErrorString((char *)&(buffer[0]));
@@ -205,7 +206,7 @@ bool PyController::checkRunning()
 		char *pScript = (char *)m_scriptPath.c_str();
 		char resultDesc[256];
 
-		snprintf(resultDesc, 256, "%d", resultPipe[1]);
+		snprintf(resultDesc, 256, "%d", m_resultPipe[1]);
 		resultDesc[255] = 0;
 
 		char *argv[] = { pExec, pScript, resultDesc, 0 };
@@ -228,7 +229,9 @@ bool PyController::checkRunning()
 	//cerr << "Child process has PID " << pythonPID << endl;
 
 	// We're the parent process, we can send commands using stdinPipe[1] and read results using resultPipe[0]
-	string line = readLine();
+	string line;
+
+	readLine(line);
 
 	//cerr << "Read line: " << line << endl;
 
