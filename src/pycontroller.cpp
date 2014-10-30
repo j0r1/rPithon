@@ -25,7 +25,7 @@ using namespace std;
 PyController::PyController()
 {
 	m_pythonExecutable = "python";
-	m_scriptPath = "c:\\projects\\rPython2-hg\\inst\\pythonwrapperscript.py"; // TODO: what's a reasonable default
+	m_scriptPath = "pythonwrapperscript.py";
 	m_hStdinPipe[0] = 0;
 	m_hStdinPipe[1] = 0;
 	m_hResultPipe[0] = 0;
@@ -183,7 +183,7 @@ void PyController::writeCommand(int cmd, const void *pData, int dataLen)
 PyController::PyController()
 {
 	m_pythonExecutable = "python";
-	m_scriptPath = "/home/jori/projects/rPython2/inst/pythonwrapperscript.py"; // TODO: what's a reasonable default
+	m_scriptPath = "pythonwrapperscript.py";
 	m_stdinPipe[0] = -1;
 	m_stdinPipe[1] = -1;
 	m_resultPipe[0] = -1;

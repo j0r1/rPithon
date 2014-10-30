@@ -13,29 +13,24 @@ static std::vector<uint8_t> variableBuffer;
 
 extern "C" 
 {
-	void py_init();
+	void py_init(const char **script);
 	void py_close();
 	void py_exec_code(const char** code, int* exit_status, char **message);
 	void py_get_var(const char** var_name, int* found, char** resultado);
 	void py_set_exec(const char** executable);
-	void py_set_script(const char** script);
 }
 
-void py_init()
+void py_init(const char **script)
 {
 	pPyController = new PyController();
+	if (*script)
+		pPyController->setPythonScript(*script);
 }
 
 void py_set_exec(const char** executable)
 {
 	if (*executable)
 		pPyController->setPythonExecutable(*executable);
-}
-
-void py_set_script(const char** script)
-{
-	if (*script)
-		pPyController->setPythonScript(*script);
 }
 
 void py_close()

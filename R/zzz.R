@@ -5,7 +5,10 @@
 .onLoad <- function( libname, pkgname ){
 
     library.dynam( "rPython", pkgname, libname )
-    .C( "py_init", PACKAGE = "rPython" )
+   
+    script <- file.path(libname, pkgname, "pythonwrapperscript.py")
+
+    .C( "py_init", script, PACKAGE = "rPython" )
 }
 
 .onUnload <- function( libpath ){
