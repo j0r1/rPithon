@@ -1,4 +1,3 @@
-
 #include "pycontroller.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -8,11 +7,13 @@
 #include <iostream>
 #include <vector>
 
-#ifndef WIN32
+#ifdef WIN32
+#include <strsafe.h>
+#else
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
-#endif // !WIN32
+#endif // WIN32
 
 using namespace std;
 
@@ -342,7 +343,12 @@ bool PyController::exec(const std::string &code)
 			// Result should be an error description from the python process
 			vector<uint8_t> buffer(resultLength+1);
 
+#ifdef WIN32
+			DWORD num = 0;
+			ReadFile(m_hResultPipe[0], &(buffer[0]), resultLength, &num,0);
+#else
 			read(m_resultPipe[0], &(buffer[0]), resultLength);
+#endif
 			buffer[resultLength] = 0;
 
 			setErrorString((char *)&(buffer[0]));
@@ -395,7 +401,13 @@ bool PyController::getVariable(const std::string &name, std::vector<uint8_t> &va
 
 	if (resultLength != 0)
 	{
+#ifdef WIN32
+		DWORD num = 0;
+		BOOL success = ReadFile(m_hResultPipe[0], &(variableBuffer[0]), resultLength, &num, 0);
+		if (!success || num != resultLength)
+#else
 		if (read(m_resultPipe[0], &(variableBuffer[0]), resultLength) != resultLength)
+#endif // WIN32
 		{
 			setErrorString("Short read");
 			return false;

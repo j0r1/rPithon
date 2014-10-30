@@ -1,14 +1,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 #include <string>
 #include <iostream>
 #include <vector>
-#include <sys/select.h>
-#include <sys/wait.h>
-#include <signal.h>
 #include "pycontroller.h"
 
 static PyController *pPyController = 0;
