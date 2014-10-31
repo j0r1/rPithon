@@ -120,10 +120,13 @@ bool PyController::checkRunning()
 	startInfo.hStdInput = m_hStdinPipe[0];
 	
 	char execStr[BUFLEN];
-	StringCbPrintf(execStr, BUFLEN, "\"%s\" \"%s\" 0x%p", m_pythonExecutable.c_str(), m_scriptPath.c_str(),
+	// -u is for unbuffered output, so you don't need to flush stdout to get
+	// the result of a print command
+	StringCbPrintf(execStr, BUFLEN, "\"%s\" -u \"%s\" 0x%p", m_pythonExecutable.c_str(), m_scriptPath.c_str(),
 			                                      m_hResultPipe[1]);
 	execStr[BUFLEN-1] = 0;
 
+	cerr << "Starting python process: " << m_pythonExecutable << endl;
 	if (!CreateProcess(0,
 			   execStr,
 		   	   0,0,TRUE, CREATE_NO_WINDOW, 0, 0, &startInfo, &procInf))
@@ -259,8 +262,10 @@ bool PyController::checkRunning()
 		snprintf(resultDesc, 256, "%d", m_resultPipe[1]);
 		resultDesc[255] = 0;
 
-		char *argv[] = { pExec, pScript, resultDesc, 0 };
-	
+		// -u is for unbuffered output, so you don't need to flush stdout to get
+		// the result of a print command
+		char *argv[] = { pExec, "-u", pScript, resultDesc, 0 };
+
 		cerr << "Starting python process: " << pExec << endl;
 		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
