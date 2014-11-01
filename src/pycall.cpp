@@ -63,6 +63,7 @@ void py_get_var( const char** var_name, int* found, char** resultado )
 	if (!pPyController->getVariable(*var_name, variableBuffer))
 	{
 		messageBuffer = pPyController->getErrorString();
+		*resultado = (char *)messageBuffer.c_str();
 		*found = 0;
 		return;
 	}
