@@ -48,8 +48,8 @@ while True:
         try:
             exec(reallyReallyLongAndUnnecessaryPrefix.argData)
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("0,0\n")
-        except Exception as reallyReallyLongAndUnnecessaryPrefix.e:
-            reallyReallyLongAndUnnecessaryPrefix.errStr = str(reallyReallyLongAndUnnecessaryPrefix.e)
+        except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
+            reallyReallyLongAndUnnecessaryPrefix.errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
     
@@ -62,8 +62,8 @@ while True:
 
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("0,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.data))
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.data)
-        except Exception as reallyReallyLongAndUnnecessaryPrefix.e:
-            reallyReallyLongAndUnnecessaryPrefix.errStr = str(reallyReallyLongAndUnnecessaryPrefix.e)
+        except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
+            reallyReallyLongAndUnnecessaryPrefix.errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
         
