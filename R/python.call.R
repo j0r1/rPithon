@@ -36,9 +36,9 @@ python.call <- function( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.n
 
     python.command <- paste( python.command, collapse = "\n" )
 
+    instname <- instance.name
     python.exec( python.command, TRUE, instance.name )                       # Checks for errors
-
-    ret <- python.get( "_r_call_return" )
+    ret <- python.get( "_r_call_return",  instance.name=instname)
 
     if( length( ret ) == 1 && simplify ) ret <- ret[[1]]
 
