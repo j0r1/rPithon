@@ -39,7 +39,7 @@ PyController *getNamedInstance(const string &name)
 
 	if (it == pythonInstances.end())
 	{
-		pInstance = new PyController();
+		pInstance = new PyController(name);
 
 		if (scriptName.length() > 0)
 			pInstance->setPythonScript(scriptName);

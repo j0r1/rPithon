@@ -13,7 +13,7 @@
 class PyController
 {
 public:
-	PyController();
+	PyController(const std::string &identifier);
 	~PyController();
 
 	const std::string &getErrorString() const							{ return m_lastError; }
@@ -32,6 +32,7 @@ private:
 
 	mutable std::string m_lastError;
 
+	const std::string m_identifier;
 	std::string m_pythonExecutable;
 	std::string m_scriptPath;
 	bool m_startTried;

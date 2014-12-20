@@ -22,7 +22,7 @@ using namespace std;
 #define CMD_GETVAR 2
 
 #ifdef WIN32
-PyController::PyController()
+PyController::PyController(const string &identifier) : m_identifier(identifier)
 {
 	m_pythonExecutable = "python";
 	m_scriptPath = "pythonwrapperscript.py";
@@ -126,7 +126,12 @@ bool PyController::checkRunning()
 			                                      m_hResultPipe[1]);
 	execStr[BUFLEN-1] = 0;
 
-	cerr << "Starting python process: " << m_pythonExecutable << endl;
+	cerr << "Starting python process: " << m_pythonExecutable << ", identifier: ";
+	if (m_identifier.length() > 0)
+		cerr << m_identifier << endl;
+	else
+		cerr << "(default)" << endl;
+
 	if (!CreateProcess(0,
 			   execStr,
 		   	   0,0,TRUE, CREATE_NO_WINDOW, 0, 0, &startInfo, &procInf))
@@ -183,7 +188,7 @@ void PyController::writeCommand(int cmd, const void *pData, int dataLen)
 
 #else
 
-PyController::PyController()
+PyController::PyController(const string &identifier) : m_identifier(identifier)
 {
 	m_pythonExecutable = "python";
 	m_scriptPath = "pythonwrapperscript.py";
@@ -266,7 +271,12 @@ bool PyController::checkRunning()
 		// the result of a print command
 		char *argv[] = { pExec, "-u", pScript, resultDesc, 0 };
 
-		cerr << "Starting python process: " << pExec << endl;
+		cerr << "Starting python process: " << m_pythonExecutable << ", identifier: ";
+		if (m_identifier.length() > 0)
+			cerr << m_identifier << endl;
+		else
+			cerr << "(default)" << endl;
+
 		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
 			cerr << "Unable to start python process" << endl;
