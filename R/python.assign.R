@@ -2,10 +2,10 @@
 # CGB, 20100707, created
 #########################################################
 
-python.assign <- function(var.name, value, ...){
+python.assign <- function(var.name, value, ..., instance.name = ""){
 
     #value <- toJSON( value )
-    value <- toJSON( value, collapse = "", ...)
+    value <- toJSON( value, collapse = "", digits = 32, ...)
 
     # Creating the call
 
@@ -18,7 +18,7 @@ python.assign <- function(var.name, value, ...){
 
     python.command <- paste( python.command, collapse = "\n" )
 
-    python.exec( python.command )
+    python.exec( python.command, TRUE, instance.name)
     invisible( NULL )
 }
 

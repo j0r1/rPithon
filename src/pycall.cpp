@@ -5,44 +5,84 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 #include "pycontroller.h"
 
-static PyController *pPyController = 0;
-static std::string messageBuffer;
-static std::vector<uint8_t> variableBuffer;
+using namespace std;
+
+typedef map<string, PyController *> PyCtrlMap;
+
+static string messageBuffer;
+static vector<uint8_t> variableBuffer;
+static PyCtrlMap pythonInstances;
+static string scriptName;
 
 extern "C" 
 {
 	void py_init(const char **script);
 	void py_close();
-	void py_exec_code(const char** code, int* exit_status, char **message);
-	void py_get_var(const char** var_name, int* found, char** resultado);
-	void py_set_exec(const char** executable);
+	void py_exec_code(const char** code, const char **instancename, int* exit_status, char **message);
+	void py_get_var(const char** var_name, const char **instancename, int* found, char** resultado);
+	void py_set_exec(const char** executable, const char **instancename);
 }
 
 void py_init(const char **script)
 {
-	pPyController = new PyController();
 	if (*script)
-		pPyController->setPythonScript(*script);
+		scriptName = string(*script);
 }
 
-void py_set_exec(const char** executable)
+PyController *getNamedInstance(const string &name)
+{
+	PyCtrlMap::iterator it = pythonInstances.find(name);
+	PyController *pInstance = 0;
+
+	if (it == pythonInstances.end())
+	{
+		pInstance = new PyController();
+
+		if (scriptName.length() > 0)
+			pInstance->setPythonScript(scriptName);
+
+		pythonInstances[name] = pInstance;
+	}
+	else
+		pInstance = it->second;
+
+	return pInstance;
+}
+
+void py_set_exec(const char** executable, const char **instancename)
 {
 	if (*executable)
+	{
+		string name = "";
+		if (instancename)
+			name = string(*instancename);
+
+		PyController *pPyController = getNamedInstance(name);
 		pPyController->setPythonExecutable(*executable);
+	}
 }
 
 void py_close()
 {
-	delete pPyController;
-	pPyController = 0;
+	for (map<string, PyController *>::iterator it = pythonInstances.begin() ; it != pythonInstances.end() ; ++it)
+		delete it->second;
+
+	pythonInstances.clear();
 }
 
-void py_exec_code(const char** code, int* exit_status, char **message )
+void py_exec_code(const char** code, const char **instancename, int* exit_status, char **message)
 {
 	if (!*code)
 		return;
+
+	string name = "";
+	if (instancename)
+		name = string(*instancename);
+
+	PyController *pPyController = getNamedInstance(name);
 
 	if (!pPyController->exec(*code))
 	{
@@ -55,20 +95,26 @@ void py_exec_code(const char** code, int* exit_status, char **message )
 	*exit_status = 0; // No error
 }
 
-void py_get_var( const char** var_name, int* found, char** resultado )
+void py_get_var(const char** var_name, const char **instancename, int* found, char** result )
 {
 	if (!*var_name)
 		return;
 
+	string name = "";
+	if (instancename)
+		name = string(*instancename);
+
+	PyController *pPyController = getNamedInstance(name);
+
 	if (!pPyController->getVariable(*var_name, variableBuffer))
 	{
 		messageBuffer = pPyController->getErrorString();
-		*resultado = (char *)messageBuffer.c_str();
+		*result = (char *)messageBuffer.c_str();
 		*found = 0;
 		return;
 	}
 
-	*resultado = (char *)&(variableBuffer[0]); // Is it ok to keep reusing this?
+	*result = (char *)&(variableBuffer[0]); // Is it ok to keep reusing this?
 	*found = 1;
 }
 
