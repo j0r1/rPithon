@@ -1,7 +1,5 @@
-#########################################################
-# CGB, 20100718, created
-# cjgb, 20130902, fixed issues on json interface
-#########################################################
+# Code from rPython 0.0-5, by Carlos J. Gil Bellosta
+# Small modifications by Jori Liesenborgs
 
 pithon.call <- function( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.name = "" ){
 

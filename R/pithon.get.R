@@ -1,6 +1,5 @@
-#########################################################
-# CGB, 20100716, created
-#########################################################
+# Code from rPython 0.0-5, by Carlos J. Gil Bellosta
+# Small modifications by Jori Liesenborgs
 
 pithon.get <- function(var.name, instance.name = "" ){
 

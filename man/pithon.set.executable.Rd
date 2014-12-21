@@ -1,14 +1,15 @@
-\name{python.set.executable}
-\alias{python.set.executable}
-\title{ python.set.executable }
+\name{pithon.set.executable}
+\alias{pithon.set.executable}
+\title{ pithon.set.executable }
 \description{
   Sets the path to the Python executable to be used.
 }
 \usage{
-  python.set.executable( path.to.python.executable )
+  pithon.set.executable( path.to.python.executable, instance.name="" )
 }
 \arguments{
-  \item{ path.to.python.executable }{ Path to the Python executable that should be used. }
+  \item{ path.to.python.executable }{ path to the Python executable that should be used. }
+  \item{instance.name}{if specified, use the Python instance with this name }
 }
 \details{
   Sets the path to the Python executable to be used. This function must be used before
@@ -25,7 +26,8 @@
 
 \examples{
 
-python.set.executable( "/usr/bin/python" )
+pithon.set.executable( "/usr/bin/python" )
+pithon.set.executable( "python3", instance.name="v3" )
 
 }
 

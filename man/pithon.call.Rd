@@ -1,13 +1,13 @@
-\name{python.call}
-\alias{python.call}
-\alias{python.method.call}
-\title{ python.call }
+\name{pithon.call}
+\alias{pithon.call}
+\alias{pithon.method.call}
+\title{pithon.call}
 \description{
   Calls Python functions and methods from R 
 }
 \usage{
-  python.call( py.foo, ..., simplify = TRUE, as.is = FALSE )
-  python.method.call( py.object, py.method, ... )
+  pithon.call( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.name="" )
+  pithon.method.call( py.object, py.method, ..., instance.name="" )
 }
 \arguments{
   \item{py.foo}{ rame of a Python function }
@@ -16,6 +16,7 @@
   \item{...}{ R objects to pass as arguments to the Python function or method }
   \item{simplify}{logical value indicating whether simplification of output should be simplified}
   \item{as.is}{logical value indicating whether length 1 vectors in R should be passed as atomic variables in Python as opposed to length 1 vectors. Note that, e.g., strings such as "hello" in R are vectors of length 1 in R, i.e., \code{"hello"} is the same as \code{c("hello")}. But Python functions operating on arrays will want to receive the array \code{["hello"]} rather than the literal string \code{"hello"}. 
+  \item{instance.name}{if specified, use the Python instance with this name }
   
   This argument provides little granularity: it affects either all or none of the arguments of the function. Finer control can be obtained using the \code{I()} function as shown in the examples section below.}
 }
@@ -30,27 +31,27 @@
     An R representation of the object returned by the call to the Python function. 
 }
 \examples{
-python.call( "len", 1:3 )
+pithon.call( "len", 1:3 )
 a <- 1:4
 b <- 5:8
-python.exec( "def concat(a,b): return a+b" )
-python.call( "concat", a, b)
+pithon.exec( "def concat(a,b): return a+b" )
+pithon.call( "concat", a, b)
 
-python.assign( "a",  "hola hola" )
-python.method.call( "a", "split", " " )
+pithon.assign( "a",  "hola hola" )
+pithon.method.call( "a", "split", " " )
 
 ## simplification of arguments
 a <- 1
 b <- 5:8
 
 \dontrun{
-python.call("concat", a, b)}
+pithon.call("concat", a, b)}
 
 # using function I()
-python.call("concat", I(a), b)
+pithon.call("concat", I(a), b)
 
 # setting as.is = TRUE
-python.call("concat", a, b, as.is = TRUE)
+pithon.call("concat", a, b, as.is = TRUE)
 
 }
 \keyword{ manip }

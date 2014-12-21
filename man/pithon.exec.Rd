@@ -1,15 +1,16 @@
-\name{python.exec}
-\alias{python.exec}
-\title{ python.exec }
+\name{pithon.exec}
+\alias{pithon.exec}
+\title{ pithon.exec }
 \description{
   Executes Python code contained in an R character vector.
 }
 \usage{
-  python.exec( python.code, get.exception = TRUE )
+  pithon.exec( python.code, get.exception = TRUE, instance.name="" )
 }
 \arguments{
-  \item{python.code}{ a character vector containing Python code, typically a single line with indentation and EOL characters as required by Python syntax }
+  \item{pithon.code}{ a character vector containing Python code, typically a single line with indentation and EOL characters as required by Python syntax }
   \item{get.exception}{ logical value indicating whether to check or not for exceptions in Python }
+  \item{instance.name}{if specified, use the Python instance with this name }
 }
 \details{
     This function runs Python code.
@@ -30,9 +31,14 @@
 
 a <- 1:4
 b <- 5:8
-python.exec( c( "def concat(a,b):", "\treturn a+b" ) )
-python.call( "concat", a, b)
+pithon.exec( c( "def concat(a,b):", "\treturn a+b" ) )
+pithon.call( "concat", a, b)
 
+pithon.exec("x = 123", instance.name="A")
+pithon.exec("x = 456", instance.name="B")
+
+pithin.get("x", instance.name="A") # returns 123
+pithin.get("x", instance.name="B") # returns 456
 
 }
 

@@ -1,6 +1,5 @@
-#########################################################
-# CGB, 20100707, created
-#########################################################
+# Code from rPython 0.0-5, by Carlos J. Gil Bellosta
+# Small modifications by Jori Liesenborgs
 
 pithon.assign <- function(var.name, value, ..., instance.name = ""){
 
