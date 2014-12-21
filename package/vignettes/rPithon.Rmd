@@ -12,4 +12,34 @@ vignette: >
 rPithon
 =======
 
-Bla
+Introduction
+------------
+
+`rPithon` is a package which allows you to execute Python code from within R, passing R
+variables to Python, and reading Python results back into R. The functions are based on
+those from [rPython](http://rpython.r-forge.r-project.org/), but the way it works is
+fundamentally different: in this package, an actual Python process is started and
+communication with it occurs over a so-called pipe. To exchange data, the `rPithon`
+package also makes use of `RJSONIO` to convert data structures to and from the JSON
+format.
+
+This approach of communicating with a separate Python process instead of linking Python
+directly into the current R session, has a few advantages:
+
+ - if the python code causes a crash or exits the process, this does not terminate the
+   current R session, only that particular Python process is affected.
+ - several Python processes can be used, so that different packages don't need to use
+   the same namespace. By letting a package use its own process, you won't need to
+   worry about some other package using the same names.
+ - different Python interpreters (for example, of versions 2 and 3) can be used.
+ - works on GNU/Linux, OS X and MS-Windows.
+
+Since the Python execution speed is exactly the same, the only disadvantage I can think 
+of is that communication with the Python process could be a bit slower.
+
+As was already mentioned, the R functions are nearly identical to their `rPython`
+counterparts, so many thanks to Carlos J. Gil Bellosta for releasing said package.
+
+Usage
+-----
+
