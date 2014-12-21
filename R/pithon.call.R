@@ -21,21 +21,21 @@ pithon.call <- function( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.n
 
     # Creating the call
 
-    pithon.command <- c( 
+    python.command <- c( 
         paste( "_r_args_dict =r'''", foo.args.dict, "'''", sep = "" ),
         paste( "_r_args_vect =r'''", foo.args.vect, "'''", sep = "" ),
         "_r_args_dict = json.loads( _r_args_dict )",
         "_r_args_vect = json.loads( _r_args_vect )",
-        pithon.command <- paste( "_r_call_return = ", py.foo, "(",
+        python.command <- paste( "_r_call_return = ", py.foo, "(",
                                   ifelse( n.args.vect == 1, "_r_args_vect[0]", "*_r_args_vect" ),
                                   ifelse( n.args.dict == 0, ")", ", **_r_args_dict)" ), 
                                   sep = "" )
     )
 
-    pithon.command <- paste( pithon.command, collapse = "\n" )
+    python.command <- paste( python.command, collapse = "\n" )
 
     instname <- instance.name
-    pithon.exec( pithon.command, TRUE, instance.name )                       # Checks for errors
+    pithon.exec( python.command, TRUE, instance.name )                       # Checks for errors
     ret <- pithon.get( "_r_call_return",  instance.name=instname)
 
     if( length( ret ) == 1 && simplify ) ret <- ret[[1]]

@@ -8,16 +8,16 @@ pithon.assign <- function(var.name, value, ..., instance.name = ""){
 
     # Creating the call
 
-    pithon.command <- c( 
+    python.command <- c( 
         paste( var.name , "='", value, "'",  sep = " " ),
         paste( var.name , "= json.loads(", var.name, ")", sep = "" ),
         paste( "if len(",  var.name , ") == 1:", sep = "" ),
         paste( "    ", var.name, "=", var.name, "[0]" ) 
     )
 
-    pithon.command <- paste( pithon.command, collapse = "\n" )
+    python.command <- paste( python.command, collapse = "\n" )
 
-    pithon.exec( pithon.command, TRUE, instance.name)
+    pithon.exec( python.command, TRUE, instance.name)
     invisible( NULL )
 }
 
