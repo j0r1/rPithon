@@ -6,12 +6,13 @@
   Functions that assign and get Python variables from R.
 }
 \usage{
-  pithon.assign( var.name, value, instance.name="" )
+  pithon.assign( var.name, value, ..., instance.name="" )
   pithon.get( var.name, instance.name="" )
 }
 \arguments{
   \item{var.name}{ a character string containing a Python variable name }
   \item{value}{ an R object whose equivalent will be assigned to the variable in Python }
+  \item{...}{ arguments to pass to RJSONIO's toJSON function }
   \item{instance.name}{if specified, use the Python instance with this name }
 }
 \details{
