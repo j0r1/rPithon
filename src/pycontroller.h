@@ -29,6 +29,7 @@ private:
 	bool checkRunning();
 	bool readLine(std::string &line);
 	void writeCommand(int cmd, const void *pData, int dataLen);
+	void startupMessage();
 
 	mutable std::string m_lastError;
 

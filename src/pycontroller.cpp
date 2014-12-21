@@ -1,4 +1,5 @@
 #include "pycontroller.h"
+#include <R.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,6 +21,15 @@ using namespace std;
 #define BUFLEN 4096
 #define CMD_EXEC 1
 #define CMD_GETVAR 2
+
+void PyController::startupMessage()
+{
+	string ident = "(default)";
+	if (m_identifier.length() > 0)
+		ident = m_identifier;
+
+	REprintf("Starting python process: %s, identifier: %s\n", m_pythonExecutable.c_str(), ident.c_str());
+}
 
 #ifdef WIN32
 PyController::PyController(const string &identifier) : m_identifier(identifier)
@@ -126,11 +136,7 @@ bool PyController::checkRunning()
 			                                      m_hResultPipe[1]);
 	execStr[BUFLEN-1] = 0;
 
-	cerr << "Starting python process: " << m_pythonExecutable << ", identifier: ";
-	if (m_identifier.length() > 0)
-		cerr << m_identifier << endl;
-	else
-		cerr << "(default)" << endl;
+	startupMessage();
 
 	if (!CreateProcess(0,
 			   execStr,
@@ -271,15 +277,11 @@ bool PyController::checkRunning()
 		// the result of a print command
 		char *argv[] = { pExec, "-u", pScript, resultDesc, 0 };
 
-		cerr << "Starting python process: " << m_pythonExecutable << ", identifier: ";
-		if (m_identifier.length() > 0)
-			cerr << m_identifier << endl;
-		else
-			cerr << "(default)" << endl;
+		startupMessage();
 
 		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
-			cerr << "Unable to start python process" << endl;
+			//cerr << "Unable to start python process" << endl;
 			exit(-1); // stop child process
 		}
 		exit(0); // shouldn't get here (process was replaced by python), but just in case...
@@ -303,7 +305,7 @@ bool PyController::checkRunning()
 	if (line != "RPYTHON2")
 	{
 		cleanup();
-		setErrorString("Received bad identifier from python process");
+		setErrorString("Received bad identifier from python process (perhaps python program couldn't be started?)");
 		return false;
 	}
 
