@@ -1,4 +1,4 @@
 #!/bin/bash
 
-R CMD build .
+(cd package/ ; R CMD build . && mv rPithon*.tar.gz .. )
 
