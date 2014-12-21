@@ -29,7 +29,8 @@ void PyController::startupMessage()
 	if (m_identifier.length() > 0)
 		ident = m_identifier;
 
-	REprintf("Starting python process: %s, identifier: %s\n", m_pythonExecutable.c_str(), ident.c_str());
+	Rprintf("Starting python process: %s, identifier: %s\n", m_pythonExecutable.c_str(), ident.c_str());
+	R_FlushConsole();
 }
 
 #ifdef WIN32
