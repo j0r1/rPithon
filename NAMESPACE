@@ -1,2 +1,2 @@
 importFrom("RJSONIO", toJSON, fromJSON)
-exportPattern("^python")
+exportPattern("^pithon")
