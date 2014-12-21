@@ -19,7 +19,7 @@ else:
 
 # To be sure that both python and this script was started successfully,
 # we send back the string which the C++ part is expecting
-reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("RPYTHON2\n")
+reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("RPITHON\n")
 reallyReallyLongAndUnnecessaryPrefix.resultChannel.flush()
 
 while True:

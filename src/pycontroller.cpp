@@ -21,6 +21,7 @@ using namespace std;
 #define BUFLEN 4096
 #define CMD_EXEC 1
 #define CMD_GETVAR 2
+#define SCRIPTIDENTIFIER "RPITHON"
 
 void PyController::startupMessage()
 {
@@ -163,8 +164,9 @@ bool PyController::checkRunning()
 
 	//cerr << "Read line: " << line << endl;
 
-	if (line != "RPYTHON2")
+	if (line != SCRIPTIDENTIFIER)
 	{
+		cleanup();
 		setErrorString("Received bad identifier from python process");
 		return false;
 	}
@@ -302,7 +304,7 @@ bool PyController::checkRunning()
 
 	//cerr << "Read line: " << line << endl;
 
-	if (line != "RPYTHON2")
+	if (line != SCRIPTIDENTIFIER)
 	{
 		cleanup();
 		setErrorString("Received bad identifier from python process (perhaps python program couldn't be started?)");
