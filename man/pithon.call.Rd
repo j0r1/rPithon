@@ -15,7 +15,7 @@
   \item{py.method}{ name of a method of such object }
   \item{...}{ R objects to pass as arguments to the Python function or method }
   \item{simplify}{logical value indicating whether simplification of output should be simplified}
-  \item{as.is}{logical value indicating whether length 1 vectors in R should be passed as atomic variables in Python as opposed to length 1 vectors. Note that, e.g., strings such as "hello" in R are vectors of length 1 in R, i.e., \code{"hello"} is the same as \code{c("hello")}. But Python functions operating on arrays will want to receive the array \code{["hello"]} rather than the literal string \code{"hello"}. 
+  \item{as.is}{logical value indicating whether length 1 vectors in R should be passed as atomic variables in Python as opposed to length 1 vectors. Note that, e.g., strings such as "hello" in R are vectors of length 1 in R, i.e., \code{"hello"} is the same as \code{c("hello")}. But Python functions operating on arrays will want to receive the array \code{["hello"]} rather than the literal string \code{"hello"}. }
   \item{instance.name}{if specified, use the Python instance with this name }
   
   This argument provides little granularity: it affects either all or none of the arguments of the function. Finer control can be obtained using the \code{I()} function as shown in the examples section below.}
