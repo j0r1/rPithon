@@ -1,5 +1,5 @@
-pithon.set.executable <- function(execname, instance.name = "")
+pithon.set.executable <- function(path.to.python.executable, instance.name = "")
 {
-	.C("py_set_exec", execname, instance.name, PACKAGE = "rPithon")
+	.C("py_set_exec", path.to.python.executable, instance.name, PACKAGE = "rPithon")
 	invisible(NULL)
 }

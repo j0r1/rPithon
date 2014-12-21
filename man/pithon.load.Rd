@@ -25,12 +25,14 @@
 
 \examples{
 
+\dontrun{
 a <- 1:4
 b <- 5:8
 
 # this file contains the definition of function concat
 pithon.load( system.file( "concat.py", package = "rPython" ) )
 pithon.call( "concat", a, b)
+}
 
 }
 

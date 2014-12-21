@@ -32,6 +32,9 @@
     An R representation of the object returned by the call to the Python function. 
 }
 \examples{
+
+\dontrun{
+
 pithon.call( "len", 1:3 )
 a <- 1:4
 b <- 5:8
@@ -45,15 +48,17 @@ pithon.method.call( "a", "split", " " )
 a <- 1
 b <- 5:8
 
-\dontrun{
-pithon.call("concat", a, b)}
+pithon.call("concat", a, b)
 
 # using function I()
 pithon.call("concat", I(a), b)
 
 # setting as.is = TRUE
 pithon.call("concat", a, b, as.is = TRUE)
+}
 
 }
+
+
 \keyword{ manip }
 

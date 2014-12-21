@@ -25,6 +25,7 @@
 
 \examples{
 
+\dontrun{
 a <- 1:4
 pithon.assign( "a", a )
 pithon.exec( "b = len( a )" )
@@ -36,6 +37,7 @@ p <- pithon.get( "math.pi" )
 pithon.set.executable("python3", instance.name="v3")
 pithon.exec("x = 123.456", instance.name="v3")
 pithon.get("x", "v3")
+}
 
 }
 

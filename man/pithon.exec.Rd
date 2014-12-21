@@ -8,7 +8,7 @@
   pithon.exec( python.code, get.exception = TRUE, instance.name="" )
 }
 \arguments{
-  \item{pithon.code}{ a character vector containing Python code, typically a single line with indentation and EOL characters as required by Python syntax }
+  \item{python.code}{ a character vector containing Python code, typically a single line with indentation and EOL characters as required by Python syntax }
   \item{get.exception}{ logical value indicating whether to check or not for exceptions in Python }
   \item{instance.name}{if specified, use the Python instance with this name }
 }
@@ -29,6 +29,8 @@
 
 \examples{
 
+\dontrun{
+
 a <- 1:4
 b <- 5:8
 pithon.exec( c( "def concat(a,b):", "\treturn a+b" ) )
@@ -39,6 +41,7 @@ pithon.exec("x = 456", instance.name="B")
 
 pithon.get("x", instance.name="A") # returns 123
 pithon.get("x", instance.name="B") # returns 456
+}
 
 }
 
