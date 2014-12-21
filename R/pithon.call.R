@@ -3,7 +3,7 @@
 # cjgb, 20130902, fixed issues on json interface
 #########################################################
 
-python.call <- function( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.name = "" ){
+pithon.call <- function( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.name = "" ){
 
     foo.args <- list( ... )
 
@@ -23,22 +23,22 @@ python.call <- function( py.foo, ..., simplify = TRUE, as.is = FALSE, instance.n
 
     # Creating the call
 
-    python.command <- c( 
+    pithon.command <- c( 
         paste( "_r_args_dict =r'''", foo.args.dict, "'''", sep = "" ),
         paste( "_r_args_vect =r'''", foo.args.vect, "'''", sep = "" ),
         "_r_args_dict = json.loads( _r_args_dict )",
         "_r_args_vect = json.loads( _r_args_vect )",
-        python.command <- paste( "_r_call_return = ", py.foo, "(",
+        pithon.command <- paste( "_r_call_return = ", py.foo, "(",
                                   ifelse( n.args.vect == 1, "_r_args_vect[0]", "*_r_args_vect" ),
                                   ifelse( n.args.dict == 0, ")", ", **_r_args_dict)" ), 
                                   sep = "" )
     )
 
-    python.command <- paste( python.command, collapse = "\n" )
+    pithon.command <- paste( pithon.command, collapse = "\n" )
 
     instname <- instance.name
-    python.exec( python.command, TRUE, instance.name )                       # Checks for errors
-    ret <- python.get( "_r_call_return",  instance.name=instname)
+    pithon.exec( pithon.command, TRUE, instance.name )                       # Checks for errors
+    ret <- pithon.get( "_r_call_return",  instance.name=instname)
 
     if( length( ret ) == 1 && simplify ) ret <- ret[[1]]
 

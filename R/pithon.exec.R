@@ -2,11 +2,11 @@
 # CGB, 20100716
 #########################################################
 
-python.exec <- function( python.code, get.exception = TRUE, instance.name = "" ){
+pithon.exec <- function( pithon.code, get.exception = TRUE, instance.name = "" ){
 
-    python.code <- paste( python.code, collapse = "\n" )
+    pithon.code <- paste( pithon.code, collapse = "\n" )
 
-    ret <- .C( "py_exec_code", python.code, instance.name, exit.status = integer(1), message = character(1), PACKAGE = "rPython" )
+    ret <- .C( "py_exec_code", pithon.code, instance.name, exit.status = integer(1), message = character(1), PACKAGE = "rPithon" )
     if (!get.exception)
     	return(ret$exit.status)
 

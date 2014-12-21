@@ -2,8 +2,8 @@
 # CGB, 20100718
 #########################################################
 
-python.method.call <- function( py.object, py.method, ..., instance.name = "" ){
+pithon.method.call <- function( py.object, py.method, ..., instance.name = "" ){
     instname = instance.name
-    python.call( paste( py.object, py.method, sep = "." ), ..., instance.name=instname )
+    pithon.call( paste( py.object, py.method, sep = "." ), ..., instance.name=instname )
 }
 

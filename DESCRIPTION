@@ -1,12 +1,10 @@
-Package: rPython
-Version: 0.0-7
-Date: 2014-08-02
-Title: Package allowing R to call Python
-Author: Carlos J. Gil Bellosta
-Maintainer: Carlos J. Gil Bellosta <cgb@datanalytics.com>
+Package: rPithon
+Version: 1.0-0
+Date: 2014-12-20
+Title: Package allowing R to call Python, by communicating using a 'pipe'
+Author: Jori Liesenborgs
+Maintainer: Jori Liesenborgs <jori.liesenborgs@gmail.com>
 Description: This package permits calls to Python from R
 Depends: RJSONIO (>= 0.7-3)
 License: GPL-2
-URL: http://rpython.r-forge.r-project.org/
-Packaged: 2013-09-04 17:38:42 UTC; carlos
 
