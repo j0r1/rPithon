@@ -37,8 +37,8 @@ pithon.call( "concat", a, b)
 pithon.exec("x = 123", instance.name="A")
 pithon.exec("x = 456", instance.name="B")
 
-pithin.get("x", instance.name="A") # returns 123
-pithin.get("x", instance.name="B") # returns 456
+pithon.get("x", instance.name="A") # returns 123
+pithon.get("x", instance.name="B") # returns 456
 
 }
 
