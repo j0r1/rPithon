@@ -29,18 +29,23 @@
 
 \examples{
 
-\dontrun{
+if (pithon.available())
+{
+	a <- 1:4
+	b <- 5:8
+	pithon.exec( c( "def concat(a,b):", "\treturn a+b" ) )
+	pithon.call( "concat", a, b)
+} else {
+	print("Unable to execute python")
+}
 
-a <- 1:4
-b <- 5:8
-pithon.exec( c( "def concat(a,b):", "\treturn a+b" ) )
-pithon.call( "concat", a, b)
+if (pithon.available("A") && pithon.available("B"))
+{
+	pithon.exec("x = 123", instance.name="A")
+	pithon.exec("x = 456", instance.name="B")
 
-pithon.exec("x = 123", instance.name="A")
-pithon.exec("x = 456", instance.name="B")
-
-pithon.get("x", instance.name="A") # returns 123
-pithon.get("x", instance.name="B") # returns 456
+	pithon.get("x", instance.name="A") # returns 123
+	pithon.get("x", instance.name="B") # returns 456
 }
 
 }

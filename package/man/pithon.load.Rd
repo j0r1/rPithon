@@ -25,13 +25,17 @@
 
 \examples{
 
-\dontrun{
-a <- 1:4
-b <- 5:8
+if (pithon.available())
+{
+	a <- 1:4
+	b <- 5:8
 
-# this file contains the definition of function concat
-pithon.load( system.file( "concat.py", package = "rPython" ) )
-pithon.call( "concat", a, b)
+	# this file contains the definition of function concat
+	pithon.load( system.file( "concat.py", package = "rPython" ) )
+	pithon.call( "concat", a, b)
+
+} else {
+	print("Unable to execute python")
 }
 
 }

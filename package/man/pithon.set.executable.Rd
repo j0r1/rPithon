@@ -26,10 +26,8 @@
 
 \examples{
 
-\dontrun{
 pithon.set.executable( "/usr/bin/python" )
 pithon.set.executable( "python3", instance.name="v3" )
-}
 
 }
 

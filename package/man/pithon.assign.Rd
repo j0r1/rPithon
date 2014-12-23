@@ -26,18 +26,28 @@
 
 \examples{
 
-\dontrun{
-a <- 1:4
-pithon.assign( "a", a )
-pithon.exec( "b = len( a )" )
-pithon.get( "b" )
+if (pithon.available())
+{
+	a <- 1:4
+	pithon.assign( "a", a )
+	pithon.exec( "b = len( a )" )
+	pithon.get( "b" )
 
-pithon.exec( "import math" )
-p <- pithon.get( "math.pi" )
+	pithon.exec( "import math" )
+	p <- pithon.get( "math.pi" )
+
+} else {
+	print("Unable to execute python")
+}
 
 pithon.set.executable("python3", instance.name="v3")
-pithon.exec("x = 123.456", instance.name="v3")
-pithon.get("x", "v3")
+if (pithon.available("v3"))
+{
+	pithon.assign("x", 123.456, instance.name="v3")
+	pithon.get("x", "v3")
+
+} else {
+	print("Unable to execute python3")
 }
 
 }

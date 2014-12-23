@@ -55,7 +55,9 @@ there are several functions you can use. The most important ones are `pithon.set
    If this function is not run first, the default will be `python`. Optionally, a second
    parameter called `instance.name` can be specified, and this parameter can be used in
    other rPithon functions as well. All functions using the same `instance.name` value
-   will communicate with the same Python process. For example:
+   will communicate with the same Python process. Note that once a Python process has
+   actually been started (by calling any other function), changing the executable will
+   have no effect. An example of this function is:
 
         pithon.set.executable("python3", instance.name="v3")
 
@@ -73,11 +75,20 @@ there are several functions you can use. The most important ones are `pithon.set
         pithon.get("x")                            # Returns 123
         pithon.get("x", instance.name="v3")        # Returns 456
 
-The other functions are `pithon.assign`, `pithon.call`, `pithon.load` and 
+The other functions are `pithon.available`, `pithon.assign`, `pithon.call`, `pithon.load` and 
 `pithon.method.call`, and make use of the`pithon.exec` and `pithon.get` functions to
 accomplish their goals. In each of them, an `instance.name` parameter can be used
 to identify a Python process.
 
+ - `pithon.available`: checks if the specified Python process is running or can be started,
+   for example:
+
+        if (pithon.available()) {
+            print("Default Python instance works")
+        } else {
+            print("Default Python instance does not work!")
+        }
+ 
  - `pithon.assign`: to the Python variable with the specified name, the value will be
    assigned. For example:
 
