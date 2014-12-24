@@ -13,6 +13,6 @@ if ! hg archive $TMPDIR/ ; then
 	exit -1
 fi
 
-( cd $TMPDIR/package/ ; R CMD build . && mv rPithon_*.tar.gz $CURDIR )
+( cd $TMPDIR/pkg/ ; R CMD build . && mv rPithon_*.tar.gz $CURDIR )
 rm -rf $TMPDIR
 

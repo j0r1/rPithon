@@ -8,13 +8,13 @@
 #include <iostream>
 #include <vector>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <strsafe.h>
 #else
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
-#endif // WIN32
+#endif // _WIN32
 
 using namespace std;
 
@@ -33,7 +33,7 @@ void PyController::startupMessage()
 	R_FlushConsole();
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 PyController::PyController(const string &identifier) : m_identifier(identifier)
 {
 	m_pythonExecutable = "python";
@@ -285,9 +285,9 @@ bool PyController::checkRunning()
 		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
 			//cerr << "Unable to start python process" << endl;
-			exit(-1); // stop child process
+			_exit(-1); // stop child process
 		}
-		exit(0); // shouldn't get here (process was replaced by python), but just in case...
+		_exit(0); // shouldn't get here (process was replaced by python), but just in case...
 	}
 
 	close(m_stdinPipe[0]);
@@ -331,7 +331,7 @@ void PyController::writeCommand(int cmd, const void *pData, int dataLen)
 	//cout << "Done" << endl;
 }
 
-#endif // WIN32
+#endif // _WIN32
 
 bool PyController::exec(const std::string &code)
 {
@@ -369,7 +369,7 @@ bool PyController::exec(const std::string &code)
 			// Result should be an error description from the python process
 			vector<uint8_t> buffer(resultLength+1);
 
-#ifdef WIN32
+#ifdef _WIN32
 			DWORD num = 0;
 			ReadFile(m_hResultPipe[0], &(buffer[0]), resultLength, &num,0);
 #else
@@ -427,13 +427,13 @@ bool PyController::getVariable(const std::string &name, std::vector<uint8_t> &va
 
 	if (resultLength != 0)
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		DWORD num = 0;
 		BOOL success = ReadFile(m_hResultPipe[0], &(variableBuffer[0]), resultLength, &num, 0);
 		if (!success || num != resultLength)
 #else
 		if (read(m_resultPipe[0], &(variableBuffer[0]), resultLength) != resultLength)
-#endif // WIN32
+#endif // _WIN32
 		{
 			setErrorString("Short read");
 			return false;
@@ -463,14 +463,14 @@ bool PyController::readLine(string &line)
 
 		c[1] = 0;
 		//cout << "Reading a character..." << endl;
-#ifdef WIN32
+#ifdef _WIN32
 		DWORD numRead = 0;
 		BOOL success = ReadFile(m_hResultPipe[0], c, 1, &numRead, 0);
 		if (!success || numRead != 1)
 #else
 
 		if (read(m_resultPipe[0], c, 1) != 1)
-#endif // WIN32
+#endif // _WIN32
 		{
 			setErrorString("Read error");
 			return false;
