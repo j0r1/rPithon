@@ -3,7 +3,8 @@ pithon.available <- function(instance.name = "")
 	avail <- FALSE
 
 	tryCatch({
-		pithon.get("sys.version")
+		iname <- instance.name
+		pithon.get("sys.version", instance.name=iname)
 		avail <- TRUE
 	}, error = function(e) { })
 
