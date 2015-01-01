@@ -1,3 +1,6 @@
+#include <Rcpp.h>
+
+
 #include "pycontroller.h"
 #include <R.h>
 #include <stdint.h>
@@ -31,6 +34,8 @@ void PyController::startupMessage()
 
 	Rprintf("Starting python process: %s, identifier: %s\n", m_pythonExecutable.c_str(), ident.c_str());
 	R_FlushConsole();
+
+	Rcpp::Rcout << "HERE" << std::endl;
 }
 
 #ifdef _WIN32
@@ -260,6 +265,8 @@ bool PyController::checkRunning()
 
 	//cerr << "Fork successful" << endl;
 
+	startupMessage();
+
 	if (m_pythonPID == 0) // In this case, we're in the child process
 	{
 		// close default stdin and replace with our pipe
@@ -279,8 +286,6 @@ bool PyController::checkRunning()
 		// -u is for unbuffered output, so you don't need to flush stdout to get
 		// the result of a print command
 		char *argv[] = { pExec, "-u", pScript, resultDesc, 0 };
-
-		startupMessage();
 
 		if (execvp(pExec, argv) < 0) // environ is a global variable
 		{
