@@ -1,6 +1,3 @@
-#include <Rcpp.h>
-
-
 #include "pycontroller.h"
 #include <R.h>
 #include <stdint.h>
