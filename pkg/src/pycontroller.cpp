@@ -31,8 +31,6 @@ void PyController::startupMessage()
 
 	Rprintf("Starting python process: %s, identifier: %s\n", m_pythonExecutable.c_str(), ident.c_str());
 	R_FlushConsole();
-
-	Rcpp::Rcout << "HERE" << std::endl;
 }
 
 #ifdef _WIN32
