@@ -2,11 +2,14 @@
 title: "rPithon"
 author: "Jori Liesenborgs"
 date: "2014-12-21"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    css: rPithon.css
+
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{rPithon}
   %\VignetteEngine{knitr::rmarkdown}
-  %\usepackage[utf8]{inputenc}
+  \usepackage[utf8]{inputenc}
 ---
 
 rPithon

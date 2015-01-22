@@ -12,5 +12,5 @@ Description: rPithon is based on rPython (by Carlos J. Gil Bellosta), but instea
 Depends: RJSONIO (>= 0.7-3)
 License: GPL-2
 SystemRequirements: Python
-Suggests: knitr
+Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
