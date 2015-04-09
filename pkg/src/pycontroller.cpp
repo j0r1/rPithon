@@ -485,7 +485,12 @@ bool PyController::readLine(string &line)
 	}
 	//cout << "Done." << endl;
 
-	line = result;
+	size_t len = result.length();
+	if (len > 0 && result[len-1] == '\r')
+		line = result.substr(0, len-1);
+	else
+		line = result;
+	
 	return true;
 }
 
