@@ -1,9 +1,18 @@
-import sys, os, json, platform
+import sys, os, json, platform, traceback
 
 # We'll use a helper class to create a new object so that we can attach several
 # properties to this single object, and can avoid cluttering the global 
 # namespace
-class TmpHelperClass(object): pass
+class TmpHelperClass(object):
+    @staticmethod
+    def getExceptionDescription(ex):
+        #return str(ex)
+        _, _, ex_traceback = sys.exc_info()
+        if ex_traceback is None:
+            ex_traceback = ex.__traceback__
+        tb_lines = traceback.format_exception(ex.__class__, ex, ex_traceback)
+        return "%s" % ''.join(tb_lines)
+
 reallyReallyLongAndUnnecessaryPrefix = TmpHelperClass()
 del TmpHelperClass
 
@@ -49,7 +58,7 @@ while True:
             exec(reallyReallyLongAndUnnecessaryPrefix.argData)
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("0,0\n")
         except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
-            reallyReallyLongAndUnnecessaryPrefix.errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
+            reallyReallyLongAndUnnecessaryPrefix.errStr = reallyReallyLongAndUnnecessaryPrefix.getExceptionDescription(reallyReallyLongAndUnnecessaryPrefix_e)
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
     
@@ -63,7 +72,7 @@ while True:
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("0,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.data))
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.data)
         except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
-            reallyReallyLongAndUnnecessaryPrefix.errStr = str(reallyReallyLongAndUnnecessaryPrefix_e)
+            reallyReallyLongAndUnnecessaryPrefix.errStr = reallyReallyLongAndUnnecessaryPrefix.getExceptionDescription(reallyReallyLongAndUnnecessaryPrefix_e)
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
             reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
         
