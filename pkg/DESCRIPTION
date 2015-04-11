@@ -1,5 +1,5 @@
 Package: rPithon
-Version: 1.0-3
+Version: 1.0-4
 Date: 2015-04-09
 Title: Use Python by Communicating Using a Pipe
 Author: Jori Liesenborgs, Carlos J. Gil Bellosta
@@ -12,5 +12,5 @@ Description: rPithon is based on rPython (by Carlos J. Gil Bellosta), but instea
 Depends: RJSONIO (>= 0.7-3)
 License: GPL-2
 SystemRequirements: Python
-Suggests: knitr, rmarkdown
+Suggests: knitr, rmarkdown, findpython
 VignetteBuilder: knitr
