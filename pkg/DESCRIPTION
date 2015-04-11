@@ -9,7 +9,7 @@ Description: rPithon is based on rPython (by Carlos J. Gil Bellosta), but instea
     communicated with using a 'pipe'. This approach also allows multiple Python
     instances to be started, so that different R programs/packages can use 
     different Python instances if desired.
-Depends: RJSONIO (>= 0.7-3), findpython
+Depends: RJSONIO (>= 0.7-3)
 License: GPL-2
 SystemRequirements: Python
 Suggests: knitr, rmarkdown

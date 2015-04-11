@@ -1,3 +1,2 @@
 importFrom("RJSONIO", toJSON, fromJSON)
-importFrom("findpython", find_python_cmd)
 exportPattern("^pithon")
