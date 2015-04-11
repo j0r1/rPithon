@@ -4,6 +4,18 @@ import sys, os, json, platform, traceback
 # properties to this single object, and can avoid cluttering the global 
 # namespace
 class TmpHelperClass(object):
+
+    def __init__(self):
+        # This script used one argument:
+        #  - on Windows this is the handle of the pipe to which results should be 
+        #    written (in hexadecimal)
+        #  - on Other platforms this is a file descriptor (in decimal)
+        if platform.system() == "Windows":
+            import msvcrt
+            self.resultChannel = os.fdopen(msvcrt.open_osfhandle(int(sys.argv[1],16),os.O_APPEND), "wb")
+        else:
+            self.resultChannel = os.fdopen(int(sys.argv[1]), "wb")
+
     @staticmethod
     def getExceptionDescription(ex):
         #return str(ex)
@@ -13,23 +25,34 @@ class TmpHelperClass(object):
         tb_lines = traceback.format_exception(ex.__class__, ex, ex_traceback)
         return "%s" % ''.join(tb_lines)
 
+    if sys.version_info[0] == 2:
+        def write(self, s):
+            self.resultChannel.write(s)
+            self.resultChannel.flush()
+
+        def read(self, amount = -1):
+            return sys.stdin.read(amount)
+
+        def readline(self):
+            return sys.stdin.readline()
+
+    else: # assume it's python 3
+        def write(self, s):
+            self.resultChannel.write(str.encode(s))
+            self.resultChannel.flush()
+
+        def read(self, amount = -1):
+            return sys.stdin.buffer.read(amount)
+
+        def readline(self):
+            return bytes.decode(sys.stdin.buffer.readline())
+
 reallyReallyLongAndUnnecessaryPrefix = TmpHelperClass()
 del TmpHelperClass
 
-# This script used one argument:
-#  - on Windows this is the handle of the pipe to which results should be 
-#    written (in hexadecimal)
-#  - on Other platforms this is a file descriptor (in decimal)
-if platform.system() == "Windows":
-    import msvcrt
-    reallyReallyLongAndUnnecessaryPrefix.resultChannel = os.fdopen(msvcrt.open_osfhandle(int(sys.argv[1],16),os.O_APPEND), "w")
-else:
-    reallyReallyLongAndUnnecessaryPrefix.resultChannel = os.fdopen(int(sys.argv[1]), "w")
-
 # To be sure that both python and this script was started successfully,
 # we send back the string which the C++ part is expecting
-reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("RPITHON\n")
-reallyReallyLongAndUnnecessaryPrefix.resultChannel.flush()
+reallyReallyLongAndUnnecessaryPrefix.write("RPITHON\n")
 
 while True:
 
@@ -37,7 +60,7 @@ while True:
     # comma. The first value is the command number, the second the length
     # of the data that follows.
 
-    reallyReallyLongAndUnnecessaryPrefix.l = sys.stdin.readline()
+    reallyReallyLongAndUnnecessaryPrefix.l = reallyReallyLongAndUnnecessaryPrefix.readline()
     if len(reallyReallyLongAndUnnecessaryPrefix.l) == 0:
         #print "No more data, exiting"
         break
@@ -47,36 +70,28 @@ while True:
     reallyReallyLongAndUnnecessaryPrefix.argLength = int(reallyReallyLongAndUnnecessaryPrefix.parts[1])
 
     # Read the data from stdin
-    reallyReallyLongAndUnnecessaryPrefix.argData = sys.stdin.read(reallyReallyLongAndUnnecessaryPrefix.argLength)
+    reallyReallyLongAndUnnecessaryPrefix.argData = reallyReallyLongAndUnnecessaryPrefix.read(reallyReallyLongAndUnnecessaryPrefix.argLength)
     if len(reallyReallyLongAndUnnecessaryPrefix.argData) != reallyReallyLongAndUnnecessaryPrefix.argLength:
         #print "Read insufficient data"
        break
 
     #print reallyReallyLongAndUnnecessaryPrefix.argData
-    if reallyReallyLongAndUnnecessaryPrefix.command == 1: # CMD_EXEC, execute a command
-        try:
+    try:
+        if reallyReallyLongAndUnnecessaryPrefix.command == 1: # CMD_EXEC, execute a command
             exec(reallyReallyLongAndUnnecessaryPrefix.argData)
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("0,0\n")
-        except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
-            reallyReallyLongAndUnnecessaryPrefix.errStr = reallyReallyLongAndUnnecessaryPrefix.getExceptionDescription(reallyReallyLongAndUnnecessaryPrefix_e)
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
-    
-        reallyReallyLongAndUnnecessaryPrefix.resultChannel.flush()
+            reallyReallyLongAndUnnecessaryPrefix.write("0,0\n")
 
-    elif reallyReallyLongAndUnnecessaryPrefix.command == 2: # CMD_GETVAR, evaluate a variable
-        try:
+        elif reallyReallyLongAndUnnecessaryPrefix.command == 2: # CMD_GETVAR, evaluate a variable
             # The front end expects json data in a particular way
             reallyReallyLongAndUnnecessaryPrefix.data = json.dumps([eval(reallyReallyLongAndUnnecessaryPrefix.argData)])
 
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("0,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.data))
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.data)
-        except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
-            reallyReallyLongAndUnnecessaryPrefix.errStr = reallyReallyLongAndUnnecessaryPrefix.getExceptionDescription(reallyReallyLongAndUnnecessaryPrefix_e)
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
-            reallyReallyLongAndUnnecessaryPrefix.resultChannel.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
-        
-        reallyReallyLongAndUnnecessaryPrefix.resultChannel.flush()
+            reallyReallyLongAndUnnecessaryPrefix.write("0,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.data))
+            reallyReallyLongAndUnnecessaryPrefix.write(reallyReallyLongAndUnnecessaryPrefix.data)
 
+    except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
+        reallyReallyLongAndUnnecessaryPrefix.errStr = reallyReallyLongAndUnnecessaryPrefix.getExceptionDescription(reallyReallyLongAndUnnecessaryPrefix_e)
+        reallyReallyLongAndUnnecessaryPrefix.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
+        reallyReallyLongAndUnnecessaryPrefix.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
+        
 sys.exit(0)
 

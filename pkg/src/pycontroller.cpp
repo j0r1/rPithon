@@ -351,7 +351,7 @@ bool PyController::exec(const std::string &code)
 
 	if (sscanf(line.c_str(), "%d,%d", &resultCode, &resultLength) != 2)
 	{
-		setErrorString("Internal error: bad result line");
+		setErrorString("Internal error: bad result line: " + line);
 		return false;
 	}
 
@@ -410,7 +410,7 @@ bool PyController::getVariable(const std::string &name, std::vector<uint8_t> &va
 
 	if (sscanf(line.c_str(), "%d,%d", &resultCode, &resultLength) != 2)
 	{
-		setErrorString("Internal error: bad result line");
+		setErrorString("Internal error: bad result line: " + line);
 		return false;
 	}
 
@@ -485,12 +485,7 @@ bool PyController::readLine(string &line)
 	}
 	//cout << "Done." << endl;
 
-	size_t len = result.length();
-	if (len > 0 && result[len-1] == '\r')
-		line = result.substr(0, len-1);
-	else
-		line = result;
-	
+	line = result;
 	return true;
 }
 
