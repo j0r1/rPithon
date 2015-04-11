@@ -30,6 +30,17 @@ class TmpHelperClass(object):
             self.resultChannel.write(s)
             self.resultChannel.flush()
 
+        def writeData(self, status, data = None):
+            if data is not None:
+                firstLine = "%d,%d\n" % (status, len(data))
+                self.resultChannel.write(firstLine)
+                self.resultChannel.write(data)
+            else:
+                firstLine = "%d,0\n" % status
+                self.resultChannel.write(firstLine)
+        
+            self.resultChannel.flush()
+
         def read(self, amount = -1):
             return sys.stdin.read(amount)
 
@@ -41,11 +52,24 @@ class TmpHelperClass(object):
             self.resultChannel.write(str.encode(s))
             self.resultChannel.flush()
 
+        def writeData(self, status, data = None):
+            if data is not None:
+                byteData = str.encode(data)
+                firstLine = "%d,%d\n" % (status, len(byteData))
+                self.resultChannel.write(str.encode(firstLine))
+                self.resultChannel.write(byteData)
+            else:
+                firstLine = "%d,0\n" % status
+                self.resultChannel.write(str.encode(firstLine))
+        
+            self.resultChannel.flush()
+
         def read(self, amount = -1):
             return sys.stdin.buffer.read(amount)
 
         def readline(self):
             return bytes.decode(sys.stdin.buffer.readline())
+
 
 reallyReallyLongAndUnnecessaryPrefix = TmpHelperClass()
 del TmpHelperClass
@@ -79,19 +103,16 @@ while True:
     try:
         if reallyReallyLongAndUnnecessaryPrefix.command == 1: # CMD_EXEC, execute a command
             exec(reallyReallyLongAndUnnecessaryPrefix.argData)
-            reallyReallyLongAndUnnecessaryPrefix.write("0,0\n")
+            reallyReallyLongAndUnnecessaryPrefix.writeData(0)
 
         elif reallyReallyLongAndUnnecessaryPrefix.command == 2: # CMD_GETVAR, evaluate a variable
             # The front end expects json data in a particular way
             reallyReallyLongAndUnnecessaryPrefix.data = json.dumps([eval(reallyReallyLongAndUnnecessaryPrefix.argData)])
-
-            reallyReallyLongAndUnnecessaryPrefix.write("0,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.data))
-            reallyReallyLongAndUnnecessaryPrefix.write(reallyReallyLongAndUnnecessaryPrefix.data)
+            reallyReallyLongAndUnnecessaryPrefix.writeData(0, reallyReallyLongAndUnnecessaryPrefix.data)
 
     except Exception as reallyReallyLongAndUnnecessaryPrefix_e:
         reallyReallyLongAndUnnecessaryPrefix.errStr = reallyReallyLongAndUnnecessaryPrefix.getExceptionDescription(reallyReallyLongAndUnnecessaryPrefix_e)
-        reallyReallyLongAndUnnecessaryPrefix.write("1,%d\n" % len(reallyReallyLongAndUnnecessaryPrefix.errStr))
-        reallyReallyLongAndUnnecessaryPrefix.write(reallyReallyLongAndUnnecessaryPrefix.errStr)
+        reallyReallyLongAndUnnecessaryPrefix.writeData(1, reallyReallyLongAndUnnecessaryPrefix.errStr)
         
 sys.exit(0)
 
