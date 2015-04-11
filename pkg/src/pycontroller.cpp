@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
 #include <strsafe.h>
+#include <io.h>
 #else
 #include <unistd.h>
 #include <sys/wait.h>
@@ -129,10 +130,12 @@ bool PyController::checkRunning()
 
 	startInfo.cb = sizeof(STARTUPINFO);
 	startInfo.dwFlags |= STARTF_USESTDHANDLES;
-	startInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	startInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	//startInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	//startInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	startInfo.hStdOutput = (HANDLE)_get_osfhandle(fileno(stdout));
+	startInfo.hStdError = (HANDLE)_get_osfhandle(fileno(stderr));
 	startInfo.hStdInput = m_hStdinPipe[0];
-	
+
 	char execStr[BUFLEN];
 	// -u is for unbuffered output, so you don't need to flush stdout to get
 	// the result of a print command
