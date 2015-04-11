@@ -16,15 +16,17 @@ public:
 	PyController(const std::string &identifier);
 	~PyController();
 
-	const std::string &getErrorString() const							{ return m_lastError; }
+	const std::string &getErrorString() const									{ return m_lastError; }
 
 	void setPythonExecutable(const std::string &pythonExec)						{ m_pythonExecutable = pythonExec; }
 	void setPythonScript(const std::string &pythonScript)						{ m_scriptPath = pythonScript; }
 
 	bool exec(const std::string &code);
 	bool getVariable(const std::string &name, std::vector<uint8_t> &buffer);
+
+	static void setDefaultPythonExecutable(const std::string &pythonExec)		{ s_defaultPythonExecutable = pythonExec; }
 private:
-	void setErrorString(const std::string &s) const							{ m_lastError = s; }
+	void setErrorString(const std::string &s) const								{ m_lastError = s; }
 	void cleanup();
 	bool checkRunning();
 	bool readLine(std::string &line);
@@ -47,6 +49,8 @@ private:
 	int m_resultPipe[2];
 	int m_pythonPID;
 #endif // WIN32
+
+	static std::string s_defaultPythonExecutable;
 };
 
 #endif // PYCONTROLLER_H

@@ -65,6 +65,12 @@ void py_set_exec(const char** executable, const char **instancename)
 	}
 }
 
+void py_set_default_exec(const char** executable)
+{
+	if (*executable)
+		PyController::setDefaultPythonExecutable(*executable);
+}
+
 void py_close()
 {
 	for (map<string, PyController *>::iterator it = pythonInstances.begin() ; it != pythonInstances.end() ; ++it)

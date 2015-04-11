@@ -23,6 +23,8 @@ using namespace std;
 #define CMD_GETVAR 2
 #define SCRIPTIDENTIFIER "RPITHON"
 
+std::string PyController::s_defaultPythonExecutable = "python";
+
 void PyController::startupMessage()
 {
 	string ident = "(default)";
@@ -36,7 +38,7 @@ void PyController::startupMessage()
 #ifdef _WIN32
 PyController::PyController(const string &identifier) : m_identifier(identifier)
 {
-	m_pythonExecutable = "python";
+	m_pythonExecutable = s_defaultPythonExecutable;
 	m_scriptPath = "pythonwrapperscript.py";
 	m_hStdinPipe[0] = 0;
 	m_hStdinPipe[1] = 0;
@@ -199,7 +201,7 @@ void PyController::writeCommand(int cmd, const void *pData, int dataLen)
 
 PyController::PyController(const string &identifier) : m_identifier(identifier)
 {
-	m_pythonExecutable = "python";
+	m_pythonExecutable = s_defaultPythonExecutable;
 	m_scriptPath = "pythonwrapperscript.py";
 	m_stdinPipe[0] = -1;
 	m_stdinPipe[1] = -1;

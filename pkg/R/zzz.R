@@ -10,7 +10,7 @@
 		pyExec <- find_python_cmd()
 		#print("Setting python exe to")
 		#print(pyExec)
-		.C("py_set_exec", pyExec, "", PACKAGE = "rPithon")
+		.C("py_set_default_exec", pyExec, PACKAGE = "rPithon")
 		
 	}, error = function(e) { })
 
