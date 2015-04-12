@@ -2,7 +2,7 @@
 \alias{pithon.set.executable}
 \title{ pithon.set.executable }
 \description{
-  Sets the path to the Python executable to be used.
+  Sets the path to the Python executable to be used for a particular instance.
 }
 \usage{
   pithon.set.executable( path.to.python.executable, instance.name="" )
@@ -12,13 +12,13 @@
   \item{instance.name}{if specified, use the Python instance with this name }
 }
 \details{
-  Sets the path to the Python executable to be used. This function must be used before
-  any other function that needs Python, otherwise it will have no further effect.
+  Sets the path to the Python executable to be used for a particular instance. This function 
+  must be used before that instance is started, so before using any other function that specifies
+  the instance's name. Otherwise, it will have no further effect.
 
-  If the function is not called, the program "python" will be executed and communicated
-  with. Note that this is only possible if the PATH environment variable contains the
-  Python path. On most systems this default should be okay, but the function may be
-  explicitly set which Python executable should be used.
+  If the function is not called, the program that has been set using the 
+  \code{pithon.set.defaut.executable} function (either explicitly or it's default value)
+  will be executed and communicated with.
 }
 \value{
     None.

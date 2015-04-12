@@ -1,6 +1,6 @@
 Package: rPithon
-Version: 1.0-4
-Date: 2015-04-09
+Version: 1.1-0
+Date: 2015-04-12
 Title: Use Python by Communicating Using a Pipe
 Author: Jori Liesenborgs, Carlos J. Gil Bellosta
 Maintainer: Jori Liesenborgs <jori.liesenborgs@uhasselt.be>
