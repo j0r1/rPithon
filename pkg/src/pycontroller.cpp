@@ -436,16 +436,32 @@ bool PyController::getVariable(const std::string &name, std::vector<uint8_t> &va
 		DWORD num = 0;
 		BOOL success = ReadFile(m_hResultPipe[0], &(variableBuffer[0]), resultLength, &num, 0);
 		if (!success || num != resultLength)
-#else
-		int status;
-		if ((status = read(m_resultPipe[0], &(variableBuffer[0]), resultLength)) != resultLength)
-#endif // _WIN32
 		{
 			char msg[1024];
-			sprintf(msg, "Expected %d bytes, but got %d", resultLength, status);
+			sprintf(msg, "Expected %d bytes, but got %u", resultLength, num);
 			setErrorString("Short read: " + string(msg));
 			return false;
 		}
+#else
+		int bytesToRead = resultLength;
+		int bytesRead = 0;
+		while (bytesToRead > 0)
+		{
+			int status;
+			status = read(m_resultPipe[0], &(variableBuffer[bytesRead]), bytesToRead);
+			if (status < 0)
+			{
+				char msg[1024];
+				sprintf(msg, "Got error %d while reading bytes (read %d, expected %d bytes)", status, bytesRead, resultLength);
+				setErrorString("Read error: " + string(msg));
+				return false;
+			}
+			//if (status != bytesToRead)
+			//	cout << "Didn't read everything at once!" << endl;
+			bytesRead += status;
+			bytesToRead -= status;
+		}
+#endif // _WIN32
 	}
 
 	if (resultCode != 0)
