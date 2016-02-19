@@ -437,9 +437,7 @@ bool PyController::getVariable(const std::string &name, std::vector<uint8_t> &va
 		BOOL success = ReadFile(m_hResultPipe[0], &(variableBuffer[0]), resultLength, &num, 0);
 		if (!success || num != resultLength)
 		{
-			char msg[1024];
-			sprintf(msg, "Expected %d bytes, but got %u", resultLength, num);
-			setErrorString("Short read: " + string(msg));
+			setErrorString("Short read");
 			return false;
 		}
 #else
