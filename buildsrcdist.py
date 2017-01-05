@@ -3,6 +3,7 @@
 import subprocess
 import platform
 import tempfile
+import tarfile
 import shutil
 import sys
 import os
@@ -10,11 +11,11 @@ import os
 def getRCommand():
 
     if platform.system() == "Windows": # Windows
-
-        for n in os.listdir("c:\\Program Files\\R\\"):
+        curDrive = os.getcwd()[:2]
+        for n in os.listdir(curDrive + "\\Program Files\\R\\"):
             print n
             if n.startswith("R-3"):
-                fn = "c:\\Program Files\\R\\" + n + "\\bin\\R.exe"
+                fn = curDrive + "\\Program Files\\R\\" + n + "\\bin\\R.exe"
                 if os.path.exists(fn):
                     return fn
         
@@ -27,12 +28,21 @@ def createSourcePackage(Rcmd = "R"):
     tmpDir = tempfile.mkdtemp()
     print "Created dir", tmpDir
 
-    subprocess.check_call(["hg", "archive", tmpDir])
-
     curDir = os.getcwd()
+    print "Current dir", curDir
+
+    tarBall = subprocess.check_output([ "git", "archive", "--format", "tar", "--prefix=archive/", "HEAD"])
+
     try:
         os.chdir(tmpDir)
-        subprocess.check_call([ Rcmd, "CMD", "build", "pkg"])
+        with open("archive.tar", "wb") as f:
+            f.write(tarBall)
+
+        tar = tarfile.open("archive.tar", "r")
+        tar.extractall()
+        tar.close()
+
+        subprocess.check_call([ Rcmd, "CMD", "build", os.path.join("archive","pkg")])
         sourcePackage = [ n for n in os.listdir(".") if n.endswith(".tar.gz")][0]
     finally:
         os.chdir(curDir)

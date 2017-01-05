@@ -41,6 +41,7 @@ def main():
     print("R {}".format(Rversion))
 
     instDir = sys.argv[1]
+    startDir = os.getcwd()
 
     os.mkdir(instDir)
     curDir = os.getcwd()
@@ -50,13 +51,19 @@ def main():
     os.mkdir(tmpLibDir)
     
     Rexe = buildsrcdist.getRCommand();
+
+    os.chdir(startDir)
     tmpSrcDir, srcPackName = buildsrcdist.createSourcePackage(Rexe)
+    os.chdir(instDir)
+
+    print tmpSrcDir, srcPackName
 
     logFileName = "rlogfile"
 
     try:
         with open(logFileName, "wt") as logfile:
-            subprocess.call([ Rexe, "CMD", "INSTALL", os.path.join(tmpSrcDir, srcPackName), "--build", "-l", tmpLibDir ], stdout=logfile, stderr=logfile)
+            subprocess.call([ Rexe, "CMD", "INSTALL", os.path.join(tmpSrcDir, srcPackName), "--build", "-l", tmpLibDir ], 
+                            stdout=logfile, stderr=logfile)
     finally:
         shutil.rmtree(tmpSrcDir)
 
@@ -71,7 +78,9 @@ def main():
     elif platform.system() == "Darwin": # OS X
         os.makedirs("bin/macosx/mavericks/contrib/{}/".format(Rversion))
         #os.makedirs("bin/macosx/contrib/3.0/")
+        #os.makedirs("bin/macosx/contrib/3.1/")
         #shutil.copy(pkgFile, "bin/macosx/contrib/3.0/")
+        #shutil.copy(pkgFile, "bin/macosx/contrib/3.1/")
         shutil.move(pkgFile, "bin/macosx/mavericks/contrib/{}/".format(Rversion))
     else:
         print("Unknown platform, not creating directory structure")
